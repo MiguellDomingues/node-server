@@ -1,6 +1,6 @@
-const auth                          = require('./.././database/queries/auth.js')
-const register                      = require('./.././database/queries/register.js')
-const createAppointment             = require('./.././database/queries/post_appointments_user.js')
+const auth                          = require('../database/read/auth.js')
+const register                      = require('../database/create/register.js')
+const createAppointment             = require('../database/create/post_appointments_user.js')
 
 const addUserAppointment = (req, res) => {
 

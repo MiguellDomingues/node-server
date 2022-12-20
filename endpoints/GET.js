@@ -1,6 +1,6 @@
 
-const fetchGuestLocations = require('.././database/queries/get_locations_guest.js')
-const fetchUserLocations  = require('.././database/queries/get_locations_user.js')
+const fetchGuestLocations = require('../database/read/get_locations_guest.js')
+const fetchUserLocations  = require('../database/read/get_locations_user.js')
 
 ////////////////////////////////////////////////////////////////////////////////////
 

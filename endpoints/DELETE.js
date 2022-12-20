@@ -1,4 +1,4 @@
-const deleteAppointment             = require('./.././database/queries/delete_appointments_user.js')
+const deleteAppointment             = require('../database/delete/delete_appointments_user.js')
 
 const cancelUserAppointment = (req, res) => {
 

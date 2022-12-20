@@ -7,10 +7,8 @@ const create_db                   = require('./database/create_db.js')
 const delete_db                   = require('./database/delete_db.js')
 
 const GET = require('./endpoints/GET.js')
+const POST = require('./endpoints/POST.js')
 
-const fetchUserLocations         = require('./database/queries/get_locations_user.js')
-
-const auth                        = require('./database/queries/auth.js')
 const register                    = require('./database/queries/register.js')
 const post_appointments_user      = require('./database/queries/post_appointments_user.js')
 const delete_appointments_user    = require('./database/queries/delete_appointments_user.js')
@@ -35,14 +33,14 @@ function(req,res){
     res.send('deleted');
 });
 
-app.get('/posts/guest', GET.guestAppointments)
+app.get('/posts/guest', GET.guestLocations)
 
-app.get('/posts/user', GET.userAppointments)
+app.get('/posts/user', GET.userLocations)
+
+app.post('/auth', POST.validateLogin)
 
 
-
-
-
+/*
 app.post('/auth',
 function(req,res){
 
@@ -65,6 +63,8 @@ function(req,res){
 
     });
 });
+
+*/
 
 app.post('/register',
 function(req,res){

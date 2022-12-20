@@ -1,5 +1,4 @@
 const { Location } = require('../models.js');
-
 let db = require('../database.js')
 
 module.exports = async function fetchLocationsGuest(key) {   

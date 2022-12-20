@@ -4,7 +4,7 @@ const fetchUserLocations  = require('.././database/queries/get_locations_user.js
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-const userAppointments = (req,res) => {
+const userLocations = (req,res) => {
 
     console.log("/posts/guest")
     
@@ -50,7 +50,7 @@ const fetchUserLocations_format = (db_result) => {
 
 /////////////////////////////////////////////////////////////////////////////////////
  
-const guestAppointments = (req,res) => {
+const guestLocations = (req,res) => {
 
     console.log("/posts/guest")
     const key = "123"
@@ -90,4 +90,4 @@ const fetchGuestLocations_format = (db_result) => {
 
   
 
-  module.exports = { guestAppointments, userAppointments }
+  module.exports = { guestLocations, userLocations }

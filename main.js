@@ -8,9 +8,8 @@ const delete_db                   = require('./database/delete_db.js')
 
 const GET = require('./endpoints/GET.js')
 const POST = require('./endpoints/POST.js')
+const DELETE = require('./endpoints/DELETE.js')
 
-const register                    = require('./database/queries/register.js')
-const post_appointments_user      = require('./database/queries/post_appointments_user.js')
 const delete_appointments_user    = require('./database/queries/delete_appointments_user.js')
 
 app.use( cors() );          // allow react app communicate with server on same machine/diff port
@@ -39,59 +38,11 @@ app.get('/posts/user', GET.userLocations)
 
 app.post('/auth', POST.validateLogin)
 
+app.post('/register', POST.registerNewUser)
+
+app.post('/appointment', POST.addUserAppointment)
 
 /*
-app.post('/auth',
-function(req,res){
-
-    console.log("/auth")
-    
-    console.log("req body",req.body)
-
-    auth.authUser(req.body.user_name, req.body.password,
-      function(result){
-
-        console.log("result from /auth: ", result)
-        res.setHeader('Content-Type', 'application/json');
-        res.send( JSON.stringify(result) );
-
-    }).catch( (err)=>{
-
-        console.log("err from database")
-        console.error(err)
-        res.status(500).send('Internal Server Error');
-
-    });
-});
-
-*/
-
-app.post('/register',
-function(req,res){
-
-    console.log("/register")
-    
-    console.log("req body",req.body)
-
-    register.registerUser(
-      req.body.user_name, 
-      req.body.password, 
-      req.body.type,
-      function(result){
-
-        console.log("result from /register: ", result)
-        res.setHeader('Content-Type', 'application/json');
-        res.send( JSON.stringify(result) );
-
-    }).catch( (err)=>{
-
-        console.log("err from database")
-        console.error(err)
-        res.status(500).send('Internal Server Error');
-
-    });
-});
-
 app.post('/appointment',
 function(req,res){
 
@@ -119,6 +70,7 @@ function(req,res){
 
     });
 });
+*/
 
 app.delete('/appointment',
 function(req,res){

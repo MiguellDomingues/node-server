@@ -1,62 +1,47 @@
 const { Appointment } = require('../models.js');
-var mongoose = require('mongoose');
+let db = require('../database.js')
 
-const uri = "mongodb://127.0.0.1:27017/appointment_bookings";
-
-const buildResponse = (db_result) => {
-
-    console.log("post appointment: raw db result: ", db_result)
-
-        if(!db_result){
-            return {}
-        }
-
-        return {                      
-            appointment:{
-                id:         String(db_result._id),
-                loc_id:     String(db_result.location),
-                date:       db_result.date,
-                start:      db_result.start,
-                end:        db_result.end, 
-            }               
-        }      
-}
-
-module.exports.postAppointment = async function postAppointment(
-      loc_id, 
-      user_id, 
-      date,
-      start, 
-      end,
-    callback) {
+module.exports = async function createAppointment(loc_id, user_id, date,start, end) {
    
-    await mongoose.connect(uri);
+    return new Promise( (resolve, reject) => {
 
-    try {  
-
-        console.log(loc_id, "//",
-            user_id,  "//",
-            date, "//",
-            start,  "//",
-            end, "//")
-
-            
-        Appointment.create({ 
-            location: loc_id,
-            //user:     user_id, 
-            date:   date,
-            start:  start,
-            end:    end,
-         }, function (err, new_appointment) {
-            if (err){
-                console.log("postAppointment err", err)         
-            }
-
-            console.log("post appointment: ", new_appointment)
-
-            mongoose.connection.close();
-            callback( buildResponse(new_appointment) )                       
-        });
-
-     } catch(err) { throw err } 
+         db.connect().then( ()=>{
+    
+            Appointment.create({ 
+                location: loc_id,
+                //user:     user_id, 
+                date:   date,
+                start:  start,
+                end:    end,
+            })
+            .then( (result) => { resolve(result)} )
+            .catch( (err) =>  { reject(new Error("Query Error", { cause: err })) } )
+            .finally( ()=> { db.disconnect()} )
+    
+        }).catch( (err)=> { reject(new Error("Database connection Error", { cause: err }) ) });
+    })
  }
+
+ /*
+const { User } = require('../models.js');
+let db = require('../database.js')
+
+module.exports = async function register(login_name, password, type) {
+   
+    return new Promise( (resolve, reject) => {
+
+        db.connect().then( ()=>{
+
+            User.create({ 
+                login_name: login_name, 
+                password:   password,
+                type:       type,
+                path:       '/' + type})
+                .then( (result) => { resolve(result)} )
+                .catch( (err) =>  { reject(new Error("Query Error", { cause: err })) } )
+                .finally( ()=> { db.disconnect()} )
+
+        }).catch( (err)=> { reject(new Error("Database connection Error", { cause: err }) ) });
+    })
+}
+ */

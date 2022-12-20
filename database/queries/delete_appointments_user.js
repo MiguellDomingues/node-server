@@ -1,40 +1,17 @@
 const { Appointment } = require('../models.js');
-var mongoose = require('mongoose');
+let db = require('../database.js')
 
-const uri = "mongodb://127.0.0.1:27017/appointment_bookings";
+module.exports = async function deleteAppointment(apt_id, user_id) {
 
-const buildResponse = (db_result, apt_id) => {
+    return new Promise( (resolve, reject) => {
 
-    //console.log("delete appointment: raw db result: ", db_result)
-
-        if(db_result.deletedCount !== 1){
-            return {}
-        }
-
-        return {
-            apt_id: apt_id
-        }                         
-}
-
-module.exports.deleteAppointment = async function deleteAppointment(
-      apt_id,
-      user_id, // use this when we validate that appointment belongs to user
-    callback) {
+        db.connect().then( ()=>{
    
-        await mongoose.connect(uri) //.then(function (a) { console.log("then m.connect:") } );
-
-        console.log(apt_id)
-
-        Appointment.deleteOne({ 
-            _id: apt_id
-         }).then(function (result) {
-           
-            console.log("delete appointment result: ", result)
-
-            callback( buildResponse(result, apt_id) )                       
-        }).catch( function (err) {
-            console.log("error in delete query", err)                            
-        }).finally( function () {
-           mongoose.connection.close();                              
-        })        
+            Appointment.deleteOne({_id: apt_id})
+                .then( (result) => { resolve(result)} )
+                .catch( (err) =>  { reject(new Error("Query Error", { cause: err })) } )
+                .finally( ()=> { db.disconnect()} )
+   
+       }).catch( (err)=> { reject(new Error("Database connection Error", { cause: err }) ) });
+    })            
  }

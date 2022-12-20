@@ -31,8 +31,6 @@ console.log("/post appointment")
 
 const createAppointment_format = (db_result) => {
 
-    console.log("post appointment: raw db result: ", db_result)
-
         if(!db_result){
             return {}
         }
@@ -73,8 +71,6 @@ const validateLogin = (req,res) => {
 }
 
 const valiadateLogin_format = (db_result) => {
-
-    console.log("auth: raw db result: ", db_result)
 
         if(!db_result){
             return {}
@@ -126,4 +122,4 @@ const registerNewUser_format = (db_result) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports = { validateLogin, registerNewUser, addUserAppointment }
+module.exports = { validateLogin, registerNewUser, addUserAppointment, }

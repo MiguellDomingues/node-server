@@ -5,18 +5,10 @@ const database  = 'appointment_bookings';
 
 const uri = `mongodb://${server}/${database}`;
 
-const connect = async () => { 
-
-    return new Promise( (resolve, reject) => {
-        mongoose.connect(uri).then( (db_obj) => resolve(db_obj) ).catch( (err) => reject(err) )
-    })
-}
+const connect = async () => {  await mongoose.connect(uri); }
 
 const disconnect = async () => { await mongoose.connection.close(); }
 
-module.exports = {
-    connect,
-    disconnect
-}
+module.exports = { connect, disconnect }
 
 

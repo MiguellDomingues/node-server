@@ -28,7 +28,7 @@ const buildResponse = (db_result) => {
     }  
 }
 
-module.exports.fetchLocationsUser = async function fetchLocationsUser(key, callback) {
+module.exports = async function fetchLocationsUser(key, callback) {
    
     await mongoose.connect(uri);
 

@@ -23,14 +23,23 @@ const buildResponse = (db_result) => {
     }  
 }
 
-module.exports = async function fetchLocationsGuest(key, callback) {   
+module.exports = async function fetchLocationsGuest(key) {   
 
-//module.exports.fetchLocationsGuest = async function fetchLocationsGuest(key, callback) {    
-   
-    //await mongoose.connect(uri);
+    return new Promise( (resolve, reject) => {
 
-    console.log("32")
+        db.connect().catch( (err)=> {reject(new Error("Database connection Error", { cause: err }) ) });
+    
+        Location.
+            find({})
+            .populate('tags')
+                .then( (locations) => { resolve(locations)} )
+                .catch( (err) =>  { reject(new Error("Query Error", { cause: err })) } )
+                .finally( ()=> { db.disconnect()} )
 
+    })
+ }
+
+    /*
     await db.connect().then( (conn) =>{
 
         console.log("36")
@@ -38,32 +47,41 @@ module.exports = async function fetchLocationsGuest(key, callback) {
         Location.find({}).populate('tags').then( (locations)=>{
             console.log("39")
             callback( buildResponse(locations) )   
-        }).catch( (err)=>{
+        })
+        .catch( (err)=>{
             console.log("42")
             throw err
-        }).finally( ()=>{
+        })
+        .finally( ()=>{
             console.log("44")
             db.disconnect()
         })
 
-    }).catch( (err)=>{
+    })
+    */
+    
+    /*
+    .catch( (err)=>{
         console.log("50")
         throw err
     } )
+    */
 
     /*
-    try {  
+ try {  
 
-        Location.
-            find({}).
-                populate('tags').
-                    exec(function (err, locations) {
-                            if (err) console.error(err);
-                            //mongoose.connection.close();
-                            db.disconnect()
-                            callback( buildResponse(locations) )                  
-                    });
+            await mongoose.connect(uri);
+    
+            Location.
+                find({}).
+                    populate('tags').
+                        exec(function (err, locations) {
+                                if (err) console.error(err);
+                                //mongoose.connection.close();
+                                db.disconnect()
+                                callback( buildResponse(locations) )                  
+                        });
+    
+         } catch(err) { throw err }
 
-     } catch(err) { throw err }
-     */
- }
+    */

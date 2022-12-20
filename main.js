@@ -10,7 +10,6 @@ const GET                         = require('./endpoints/GET.js')
 const POST                        = require('./endpoints/POST.js')
 const DELETE                      = require('./endpoints/DELETE.js')
 
-
 app.use( cors() );          // allow react app communicate with server on same machine/diff port
 app.use( express.json() );  // this is needed to access req.body in 'post' methods
 const port = 8080;

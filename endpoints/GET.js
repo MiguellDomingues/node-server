@@ -9,6 +9,8 @@ const userLocations = (req,res) => {
     console.log("/posts/guest")
     
     const key = req.query.key;
+
+    console.log("USER KEY: ", key)
   
     fetchUserLocations(key).then ( function(result){
 

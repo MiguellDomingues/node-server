@@ -9,7 +9,7 @@ module.exports = async function createAppointment(loc_id, user_id, date,start, e
     
             Appointment.create({ 
                 location: loc_id,
-                //user:     user_id, 
+                user:     user_id, 
                 date:   date,
                 start:  start,
                 end:    end,

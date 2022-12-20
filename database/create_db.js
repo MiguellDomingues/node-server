@@ -1,8 +1,5 @@
-
-//const { MongoClient } = require('mongodb');
-
 const mongoose = require('mongoose');
-const uri             = "mongodb://127.0.0.1:27017/appointment_bookings";
+const uri      = "mongodb://127.0.0.1:27017/appointment_bookings";
 
 //const { Schema } = mongoose
 
@@ -46,6 +43,9 @@ module.exports.createDB = async function createDB() {
 
         const user_2 = new User({ type: "user", login_name: "b" , password: "b", path: "/user"});
         await user_2.save();
+
+        const user_3 = new User({ type: "user", login_name: "c" , password: "c", path: "/user"});
+        await user_3.save();
 
          /////////////////////////// tag types ////////////////////////////////////////////
 
@@ -134,6 +134,12 @@ module.exports.createDB = async function createDB() {
 
         const appointment_3 = new Appointment({  date: "10/11/22", start: "8:00", end: "9:00", user: user_1._id, location: location_2._id});
         await appointment_3.save();
+
+        const appointment_4 = new Appointment({  date: "1/1/22", start: "2:00", end: "5:00", user: user_2._id, location: location_1._id});
+        await appointment_4.save();
+
+        const appointment_5 = new Appointment({  date: "8/2/22", start: "2:00", end: "5:00", user: user_2._id, location: location_2._id});
+        await appointment_5.save();
 
      } finally {
          // Close the connection to the MongoDB cluster

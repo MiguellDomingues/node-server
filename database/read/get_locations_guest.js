@@ -6,7 +6,6 @@ module.exports = async function fetchLocationsGuest(key) {
     return new Promise( (resolve, reject) => {
 
         db.connect().then( ()=>{
-            console.log('db connected')
             Location.
             find({})
             .populate('tags')
@@ -15,6 +14,5 @@ module.exports = async function fetchLocationsGuest(key) {
                 .finally( ()=> { db.disconnect()} )
 
         }).catch( (err)=> { reject(new Error("Database connection Error", { cause: err }) ) });
-
     })
  }

@@ -14,6 +14,8 @@ const userLocations = (req,res) => {
   
     fetchUserLocations(key).then ( function(result){
 
+        console.log(result)
+
         const res_json = fetchUserLocations_format(result)
         res.setHeader('Content-Type', 'application/json');
         res.send( JSON.stringify(res_json) );
@@ -58,6 +60,8 @@ const guestLocations = (req,res) => {
     const key = "123"
   
     fetchGuestLocations(key).then( function(db_result){
+
+        
   
       const res_json = fetchGuestLocations_format(db_result)
       res.setHeader('Content-Type', 'application/json');

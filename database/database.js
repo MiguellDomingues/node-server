@@ -11,6 +11,8 @@ const connect = async () => {  await mongoose.connect(uri); }
 
 const disconnect = async () => { await mongoose.connection.close(); }
 
-module.exports = { connect, disconnect }
+const ObjectId = (id) => { return new mongoose.Types.ObjectId(id) }
+
+module.exports = { connect, disconnect, ObjectId }
 
 

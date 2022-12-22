@@ -17,7 +17,7 @@ const appointmentSchema = new mongoose.Schema({
     lng:      Number,
     info:     String,
     //user/appointment fk's
-    owner: [{  type: Schema.Types.ObjectId, ref: 'User' }],
+    owner: {  type: Schema.Types.ObjectId, ref: 'User' },
     tags: [{  type: Schema.Types.ObjectId, ref: 'Tag' }]
   });
 

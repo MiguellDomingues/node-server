@@ -62,7 +62,6 @@ const guestLocations = (req,res) => {
     fetchGuestLocations(key).then( function(db_result){
 
         
-  
       const res_json = fetchGuestLocations_format(db_result)
       res.setHeader('Content-Type', 'application/json');
       res.send( JSON.stringify(res_json) );

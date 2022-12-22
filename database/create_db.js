@@ -93,19 +93,19 @@ module.exports.createDB = async function createDB() {
         /////////////////////////////////// locations ///////////////////////////////////////
 
         const location_1 = new Location({  address: "abc ave 123456", lat: 43.919617760254686, lng: -0.8844604492, info: "some info stuffs 0",
-            owner: user_4,
+            owner: user_4._id,
             tags: [tag_1._id, tag_3._id, tag_5._id]
         });
         await location_1.save();
 
         const location_2 = new Location({  address: "abc ave 7891011", lat: 47.919617760254686, lng: -0.7844604492, info: "some info stuffs 1",
-            owner: user_4,
+            owner: user_4._id,
             tags: [tag_2._id, tag_4._id, tag_6._id]
         });
         await location_2.save();
 
         const location_3 = new Location({ address: "abcdef ave 12131415", lat: 50.919617760254686, lng: -0.7844604492, info: "some info stuffs 2",
-            owner: user_5,
+            owner: user_5._id,
             tags: [tag_4._id, tag_5._id, tag_6._id]
         });
         await location_3.save();

@@ -24,6 +24,7 @@ const appointmentSchema = new mongoose.Schema({
   const userSchema = new mongoose.Schema({
     type:         String,
     path:         String,
+    name:         String,
     login_name:  { type : String , unique : true, required : true, dropDups: true },
     password:    { type : String , required : true}
   });

@@ -30,17 +30,17 @@ function(req,res){
     res.send('deleted');
 });
 
-app.get('/posts/guest', GET.guestLocations)
+app.get('/posts/guest',      GET.guestLocations)
+app.get('/posts/user',       GET.userLocations)
+app.get('/posts/storeowner', GET.storeOwnerLocations)
 
-app.get('/posts/user', GET.userLocations)
+app.post('/auth',           POST.validateLogin)
+app.post('/register',       POST.registerNewUser)
+app.post('/appointment',    POST.addUserAppointment)
 
-app.post('/auth', POST.validateLogin)
+app.delete('/appointment',  DELETE.cancelUserAppointment)
 
-app.post('/register', POST.registerNewUser)
-
-app.post('/appointment', POST.addUserAppointment)
-
-app.delete('/appointment', DELETE.cancelUserAppointment)
+// app.get('/config, GET.config)
 
 
 

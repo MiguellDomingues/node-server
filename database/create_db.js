@@ -50,19 +50,19 @@ module.exports.createDB = async function createDB() {
 
          /////////////////////////// users ////////////////////////////////////////////
 
-        const user_1 = new User({ type: "user", login_name: "a" , password: "a", path: "/user"});
+        const user_1 = new User({ type: "user", login_name: "a" , password: "a", path: "/user", name: "tom"});
         await user_1.save();
 
-        const user_2 = new User({ type: "user", login_name: "b" , password: "b", path: "/user"});
+        const user_2 = new User({ type: "user", login_name: "b" , password: "b", path: "/user", name: "harry"});
         await user_2.save();
 
-        const user_3 = new User({ type: "user", login_name: "c" , password: "c", path: "/user"});
+        const user_3 = new User({ type: "user", login_name: "c" , password: "c", path: "/user", name: "peter"});
         await user_3.save();
 
-        const user_4 = new User({ type: "storeowner", login_name: "d" , password: "d", path: "/storeowner"});
+        const user_4 = new User({ type: "storeowner", login_name: "d" , password: "d", path: "/storeowner", name: "john"});
         await user_4.save();
 
-        const user_5 = new User({ type: "storeowner", login_name: "e" , password: "e", path: "/storeowner"});
+        const user_5 = new User({ type: "storeowner", login_name: "e" , password: "e", path: "/storeowner", name: "dick"});
         await user_5.save();
 
          /////////////////////////// tag types ////////////////////////////////////////////
@@ -167,61 +167,6 @@ module.exports.createDB = async function createDB() {
          await mongoose.connection.close();
      }
  }
-
-//mongoose.set('strictQuery', true);
- 
-         /*
-        //define collection schemas
- 
-         const appointmentSchema = new mongoose.Schema({
-            date:  String,
-            start: String,
-            end:   String,
-            //user/appointment fk's
-            user: {  type: Schema.Types.ObjectId, ref: 'User' },
-            location: {  type: Schema.Types.ObjectId, ref: 'Location' }
-          });
-
-          const locationSchema = new mongoose.Schema({
-            address:  String,
-            lat:      Number,
-            lng:      Number,
-            info:     String,
-            //user/appointment fk's
-            // appointments: [{  type: Schema.Types.ObjectId, ref: 'Appointment' }]
-          });
-
-          const userSchema = new mongoose.Schema({
-            type:       String,
-            login_name:  String,
-            password:   String
-          });
-
-          const tagTypeSchema = new mongoose.Schema({
-            tag_type_name:  String,
-        });
-    
-        const tagSchema = new mongoose.Schema({
-            tag_name:  String,
-            tag_type: {  type: Schema.Types.ObjectId, ref: 'TagType' },
-        });
-    
-        const locationTagSchema = new mongoose.Schema({
-            location: {  type: Schema.Types.ObjectId, ref: 'Location' },
-            tag: {  type: Schema.Types.ObjectId, ref: 'Tag' },
-        });
-
-       
-
-        //load collection schemas into mongo
-
-        const User =         mongoose.model('User',         userSchema);
-        const Location =     mongoose.model('Location',     locationSchema);
-        const TagType =      mongoose.model('TagType',      tagTypeSchema);
-        const Tag =          mongoose.model('Tag',          tagSchema);
-        const LocationTag =  mongoose.model('LocationTag',  locationTagSchema );
-        const Appointment =  mongoose.model('Appointment',  appointmentSchema);
-         */
 
 
 

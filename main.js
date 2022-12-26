@@ -37,6 +37,7 @@ app.get('/posts/storeowner', GET.storeOwnerLocations)
 app.post('/auth',           POST.validateLogin)
 app.post('/register',       POST.registerNewUser)
 app.post('/appointment',    POST.addUserAppointment)
+app.post('/location',       POST.addStoreOwnerLocation)
 
 app.delete('/appointment',  DELETE.cancelUserAppointment)
 

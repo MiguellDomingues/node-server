@@ -1,6 +1,63 @@
 const auth                          = require('../database/read/auth.js')
 const register                      = require('../database/create/register.js')
 const createAppointment             = require('../database/create/post_appointments_user.js')
+const createLocation                = require('../database/create/post_locations_storeowner.js')
+
+const addStoreOwnerLocation = (req, res) => {
+
+    console.log("/post location")
+        
+    console.log("req body",req.body)
+
+    createLocation (
+        req.body.storeowner_id,
+        req.body.info,
+        req.body.address, 
+        req.body.LatLng.lat,
+        req.body.LatLng.lng,  
+        [...req.body.icons])
+        .then(function(raw_db_result){
+  
+          const res_json = createLocation_format(raw_db_result)
+
+          console.log("CREATE LOCATION RESULT: ", res_json)
+  
+          res.setHeader('Content-Type', 'application/json');
+          res.send( JSON.stringify(res_json) );
+  
+      }).catch( (err)=>{
+  
+          console.log("err from database")
+          console.error(err)
+          res.status(500).send('Internal Server Error');
+  
+      });
+
+}
+
+const createLocation_format = (db_result) => {
+
+    if(!db_result){
+        return {}
+    }
+
+    return {                      
+        location:{
+            id: String(db_result._id),
+            LatLng: {
+                lat: db_result.lat,
+                lng: db_result.lng
+            },
+            address: db_result.address,
+            info:    db_result.info,
+            icons:   db_result.tags,
+            appointments: []
+        }               
+    }   
+      
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
 
 const addUserAppointment = (req, res) => {
 
@@ -122,4 +179,4 @@ const registerNewUser_format = (db_result) => {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports = { validateLogin, registerNewUser, addUserAppointment, }
+module.exports = { validateLogin, registerNewUser, addUserAppointment, addStoreOwnerLocation }

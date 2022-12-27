@@ -9,6 +9,7 @@ const delete_db                   = require('./database/delete_db.js')
 const GET                         = require('./endpoints/GET.js')
 const POST                        = require('./endpoints/POST.js')
 const DELETE                      = require('./endpoints/DELETE.js')
+const PATCH                       = require('./endpoints/PATCH.js')
 
 app.use( cors() );          // allow react app communicate with server on same machine/diff port
 app.use( express.json() );  // this is needed to access req.body in 'post' methods
@@ -38,6 +39,8 @@ app.post('/auth',           POST.validateLogin)
 app.post('/register',       POST.registerNewUser)
 app.post('/appointment',    POST.addUserAppointment)
 app.post('/location',       POST.addStoreOwnerLocation)
+
+app.patch('/location',      PATCH.editStoreOwnerLocation)
 
 app.delete('/appointment',  DELETE.cancelUserAppointment)
 

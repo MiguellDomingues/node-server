@@ -15,8 +15,8 @@ const addStoreOwnerLocation = (req, res) => {
         req.body.address, 
         req.body.LatLng.lat,
         req.body.LatLng.lng,  
-        [...req.body.icons])
-        .then(function(raw_db_result){
+        [...req.body.icons]
+        ).then(function(raw_db_result){
   
           const res_json = createLocation_format(raw_db_result)
 

@@ -43,6 +43,7 @@ app.post('/location',       POST.addStoreOwnerLocation)
 app.patch('/location',      PATCH.editStoreOwnerLocation)
 
 app.delete('/appointment',  DELETE.cancelUserAppointment)
+app.delete('/location',     DELETE.deleteStoreOwnerLocation)
 
 // app.get('/config, GET.config)
 

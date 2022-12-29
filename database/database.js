@@ -7,7 +7,7 @@ const uri = `mongodb://${server}/${database}`;
 
 mongoose.set('strictQuery', true);
 
-const connect = async () => {  await mongoose.connect(uri); }
+const connect = async () => {  return await mongoose.connect(uri); }
 
 const disconnect = async () => { await mongoose.connection.close(); }
 

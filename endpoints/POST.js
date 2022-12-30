@@ -98,7 +98,8 @@ const createAppointment_format = (db_result) => {
                 loc_id:     String(db_result.location),
                 date:       db_result.date,
                 start:      db_result.start,
-                end:        db_result.end, 
+                end:        db_result.end,
+                status:     db_result.status
             }               
         }      
 }

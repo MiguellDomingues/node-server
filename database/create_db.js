@@ -147,19 +147,21 @@ module.exports.createDB = async function createDB() {
 
          /////////////////////////// appointments ////////////////////////////////////////////
 
-        const appointment_1 = new Appointment({  date: "10/10/22", start: "9:00", end: "10:00", user: user_1._id, location: location_1._id});
+         //['Pending', 'In Progress', 'Completed', 'Canceled']
+
+        const appointment_1 = new Appointment({  date: "10/10/22", start: "9:00", end: "10:00", status:'Pending', user: user_1._id, location: location_1._id});
         await appointment_1.save();
 
-        const appointment_2 = new Appointment({  date: "10/11/22", start: "11:00", end: "12:00", user: user_1._id, location: location_1._id});
+        const appointment_2 = new Appointment({  date: "10/11/22", start: "11:00", end: "12:00", status:'Pending', user: user_1._id, location: location_1._id});
         await appointment_2.save();
 
-        const appointment_3 = new Appointment({  date: "10/11/22", start: "8:00", end: "9:00", user: user_1._id, location: location_2._id});
+        const appointment_3 = new Appointment({  date: "10/11/22", start: "8:00", end: "9:00", status:'In Progress', user: user_1._id, location: location_2._id});
         await appointment_3.save();
 
-        const appointment_4 = new Appointment({  date: "1/1/22", start: "2:00", end: "5:00", user: user_2._id, location: location_1._id});
+        const appointment_4 = new Appointment({  date: "1/1/22", start: "2:00", end: "5:00", status:'Completed', user: user_2._id, location: location_1._id});
         await appointment_4.save();
 
-        const appointment_5 = new Appointment({  date: "8/2/22", start: "2:00", end: "5:00", user: user_2._id, location: location_2._id});
+        const appointment_5 = new Appointment({  date: "8/2/22", start: "2:00", end: "5:00", status:'Canceled', user: user_2._id, location: location_2._id});
         await appointment_5.save();
 
      } finally {

@@ -2,10 +2,17 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const STATUS = ['Pending', 'In Progress', 'Completed', 'Canceled']
+
 const appointmentSchema = new mongoose.Schema({
     date:  String,
     start: String,
     end:   String,
+    status: { 
+      type: String, 
+      enum: Object.values(STATUS), 
+      default: 'Pending'         
+    },
     //user/appointment fk's
     user: {  type: Schema.Types.ObjectId, ref: 'User' },
     location: {  type: Schema.Types.ObjectId, ref: 'Location' }
@@ -38,37 +45,10 @@ const tagSchema = new mongoose.Schema({
     tag_type: {  type: Schema.Types.ObjectId, ref: 'TagType' },
 });
 
-/*
-const locationTagSchema = new mongoose.Schema({
-    location: {  type: Schema.Types.ObjectId, ref: 'Location' },
-    tag: {  type: Schema.Types.ObjectId, ref: 'Tag' },
-});
-*/
-
 module.exports = {
   TagType:      mongoose.models.TagType     || mongoose.model('TagType', tagTypeSchema),
   Tag:          mongoose.models.Tag         || mongoose.model('Tag', tagSchema),
   User:         mongoose.models.User        || mongoose.model('User', userSchema),
   Location:     mongoose.models.Location    || mongoose.model('Location', locationSchema),
-  //LocationTag:  mongoose.models.LocationTag || mongoose.model('LocationTag', locationTagSchema),
   Appointment:  mongoose.models.Appointment || mongoose.model('Appointment', appointmentSchema),
 }
-
-
-/*
-module.exports.User =         mongoose.models.User || mongoose.model('User', userSchema);
-module.exports.Location =     mongoose.models.Location || mongoose.model('Location', locationSchema);
-module.exports.TagType =      mongoose.models.TagType || mongoose.model('TagType', tagTypeSchema);
-module.exports.Tag =          mongoose.models.Tag || mongoose.model('Tag', tagSchema);
-module.exports.LocationTag =  mongoose.models.LocationTag || mongoose.model('LocationTag', locationTagSchema);
-module.exports.Appointment =  mongoose.models.Appointment || mongoose.model('Appointment', appointmentSchema);
-*/
-
-/*
- module.exports.User =         mongoose.model('User',         userSchema);
- module.exports.Location =     mongoose.model('Location',     locationSchema);
- module.exports.TagType =      mongoose.model('TagType',      tagTypeSchema);
- module.exports.Tag =          mongoose.model('Tag',          tagSchema);
- module.exports.LocationTag =  mongoose.model('LocationTag',  locationTagSchema );
- module.exports.Appointment =  mongoose.model('Appointment',  appointmentSchema);
-*/

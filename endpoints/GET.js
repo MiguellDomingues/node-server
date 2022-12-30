@@ -47,7 +47,7 @@ const storeOwnerLocations_format = (db_result) => {
                             //console.log("--------apt: ", apt)
                             
                             apt.id = String(apt._id)
-                            apt.appointee = apt.user[0].name
+                            apt.appointee = apt.user[0].name 
                             delete apt._id
                             delete apt.user
                             return apt
@@ -67,7 +67,7 @@ const storeOwnerLocations_format = (db_result) => {
 
 const userLocations = (req,res) => {
 
-    console.log("/posts/guest")
+    console.log("/posts/user")
     
     const key = req.query.key;
 

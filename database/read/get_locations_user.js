@@ -36,7 +36,7 @@ module.exports = async function fetchLocationsUser(user_id) {
 
                      pipeline: [                     
                         {$match: {user: db.ObjectId(user_id) }},                    
-                        {$project: {"_id:": 1, "date": 1, "start": 1, "end": 1}, } //hide user/location fields from appointment
+                        {$project: {"_id:": 1, "date": 1, "start": 1, "end": 1 ,"status":1}, } //hide user/location fields from appointment
                     ],                   
                  },              
              },

@@ -46,7 +46,7 @@ const deleteStoreOwnerLocation = (req, res) => {
     deleteLocation(req.body.loc_id, req.body.storeowner_id)
     .then( function(raw_db_result){
 
-        const res_json = deleteStoreOwnerLocation_format(raw_db_result)
+        const res_json = deleteStoreOwnerLocation_format(raw_db_result, req.body.loc_id)
 
        res.setHeader('Content-Type', 'application/json');
        res.send( JSON.stringify(res_json) );
@@ -61,14 +61,14 @@ const deleteStoreOwnerLocation = (req, res) => {
     
 }
 
-const deleteStoreOwnerLocation_format = (db_result) => {
+const deleteStoreOwnerLocation_format = (db_result, loc_id) => {
 
     if(!db_result){
         return {}
     }
 
     return {
-        deleted_appointments: db_result.deletedCount
+        id: loc_id
     }                         
 }
 

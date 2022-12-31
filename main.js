@@ -31,19 +31,20 @@ function(req,res){
     res.send('deleted');
 });
 
-app.get('/posts/guest',      GET.guestLocations)
-app.get('/posts/user',       GET.userLocations)
-app.get('/posts/storeowner', GET.storeOwnerLocations)
+app.get('/posts/guest',        GET.guestLocations)
+app.get('/posts/user',         GET.userLocations)
+app.get('/posts/storeowner',   GET.storeOwnerLocations)
 
-app.post('/auth',           POST.validateLogin)
-app.post('/register',       POST.registerNewUser)
-app.post('/appointment',    POST.addUserAppointment)
-app.post('/location',       POST.addStoreOwnerLocation)
+app.post('/auth',              POST.validateLogin)
+app.post('/register',          POST.registerNewUser)
+app.post('/appointment',       POST.addUserAppointment)
+app.post('/location',          POST.addStoreOwnerLocation)
 
-app.patch('/location',      PATCH.editStoreOwnerLocation)
+app.patch('/location',         PATCH.editStoreOwnerLocation)
+app.patch('/appointment',      PATCH.updateAppointmentStatus )
 
-app.delete('/appointment',  DELETE.cancelUserAppointment)
-app.delete('/location',     DELETE.deleteStoreOwnerLocation)
+app.delete('/appointment',     DELETE.cancelUserAppointment)
+app.delete('/location',        DELETE.deleteStoreOwnerLocation)
 
 // app.get('/config, GET.config)
 

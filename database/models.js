@@ -2,7 +2,14 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const STATUS = ['Pending', 'In Progress', 'Completed', 'Canceled']
+const STATUS = ['Approved', 'In Progress', 'Completed', 'Canceled']
+
+/*
+- Approved -> in progress OR canceled 
+- in progress -> completed OR canceled
+- completed -> none
+- canceled -> none
+*/
 
 const appointmentSchema = new mongoose.Schema({
     date:  String,
@@ -11,7 +18,7 @@ const appointmentSchema = new mongoose.Schema({
     status: { 
       type: String, 
       enum: Object.values(STATUS), 
-      default: 'Pending'         
+      default: 'Approved'         
     },
     //user/appointment fk's
     user: {  type: Schema.Types.ObjectId, ref: 'User' },

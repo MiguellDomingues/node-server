@@ -15,7 +15,7 @@ const resolve = ( (_path) => {
         console.log(req.method, path, _session.u_id, user_type)
         
         try{
-            routes[path].paths[req.method][user_type](req, res, next)
+            routes[path][req.method][user_type](req, res, next)
         }
         catch(err){
             console.error("error in resolver() function. path: ", path, " session: ", _session,  err)

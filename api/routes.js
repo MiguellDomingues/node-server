@@ -12,45 +12,48 @@ an endpoint is defined as:
         }
     }
 }
+
+
+
 */
 
 module.exports = {
 
     locations:{
-        paths: {
-            GET:{
-                STOREOWNER: storeowner.fetchLocations,
-                USER:       user.fetchLocations,
-                GUEST:      guest.fetchLocations
-            },
-        }
+        
+        GET:{
+            STOREOWNER: storeowner.fetchLocations,
+            USER:       user.fetchLocations,
+            GUEST:      guest.fetchLocations
+        },
+        
     },
 
     auth:{
-        paths:{
-            POST: { GUEST: auth.validateLogin }
-        }
+        
+        POST: { GUEST: auth.validateLogin }
+        
     },
 
     register:{
-        paths: {
-            POST: { GUEST: auth.registerNewUser }
-        }
+        
+        POST: { GUEST: auth.registerNewUser }
+        
     },
 
     location:{
-        paths: {
-            POST: { STOREOWNER: storeowner.addLocation },
-            PATCH: { STOREOWNER: storeowner.editLocation },
-            DELETE: { STOREOWNER: storeowner.deleteLocation}
-        }
+        
+        POST: { STOREOWNER: storeowner.addLocation },
+        PATCH: { STOREOWNER: storeowner.editLocation },
+        DELETE: { STOREOWNER: storeowner.deleteLocation}
+        
     },
 
     appointment:{
-        paths: {
-            POST: { USER: user.addAppointment },
-            PATCH: { STOREOWNER: storeowner.updateAppointmentStatus },
-            DELETE: { USER: user.cancelAppointment}
-        }
+        
+        POST: { USER: user.addAppointment },
+        PATCH: { STOREOWNER: storeowner.updateAppointmentStatus },
+        DELETE: { USER: user.cancelAppointment}
+        
     } 
 }

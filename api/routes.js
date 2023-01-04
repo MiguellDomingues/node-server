@@ -12,20 +12,21 @@ an endpoint is defined as:
         }
     }
 }
-
-
-
 */
 
 module.exports = {
 
     locations:{
-        
+
         GET:{
+            //STOREOWNER: [fetchLocations.validateRequestJSON, storeowner.fetchLocations, fetchLocations.buildResponseObject]
             STOREOWNER: storeowner.fetchLocations,
             USER:       user.fetchLocations,
             GUEST:      guest.fetchLocations
         },
+        POST: { STOREOWNER: storeowner.addLocation },
+        PATCH: { STOREOWNER: storeowner.editLocation },
+        DELETE: { STOREOWNER: storeowner.deleteLocation}
         
     },
 
@@ -38,14 +39,6 @@ module.exports = {
     register:{
         
         POST: { GUEST: auth.registerNewUser }
-        
-    },
-
-    location:{
-        
-        POST: { STOREOWNER: storeowner.addLocation },
-        PATCH: { STOREOWNER: storeowner.editLocation },
-        DELETE: { STOREOWNER: storeowner.deleteLocation}
         
     },
 

@@ -1,19 +1,19 @@
 
 const express             = require('express');
+const router              = express.Router()
 var app                   = express();
 var cors                  = require('cors');
 
 const create_db                   = require('./database/create_db.js')
 const delete_db                   = require('./database/delete_db.js')
 
-const GET                         = require('./endpoints/GET.js')
-const POST                        = require('./endpoints/POST.js')
-const DELETE                      = require('./endpoints/DELETE.js')
-const PATCH                       = require('./endpoints/PATCH.js')
+const init                        = require('./api/init.js')
 
 app.use( cors() );          // allow react app communicate with server on same machine/diff port
 app.use( express.json() );  // this is needed to access req.body in 'post' methods
 const port = 8080;
+
+//app.use('/', router)
 
 app.listen(port, () => {
   console.log("server running")
@@ -31,22 +31,8 @@ function(req,res){
     res.send('deleted');
 });
 
-app.get('/posts/guest',        GET.guestLocations)
-app.get('/posts/user',         GET.userLocations)
-app.get('/posts/storeowner',   GET.storeOwnerLocations)
+init(app, router)
 
-app.post('/auth',              POST.validateLogin)
-app.post('/register',          POST.registerNewUser)
-app.post('/appointment',       POST.addUserAppointment)
-app.post('/location',          POST.addStoreOwnerLocation)
-
-app.patch('/location',         PATCH.editStoreOwnerLocation)
-app.patch('/appointment',      PATCH.updateAppointmentStatus )
-
-app.delete('/appointment',     DELETE.cancelUserAppointment)
-app.delete('/location',        DELETE.deleteStoreOwnerLocation)
-
-// app.get('/config, GET.config)
 
 
 

@@ -50,19 +50,19 @@ module.exports.createDB = async function createDB() {
 
          /////////////////////////// users ////////////////////////////////////////////
 
-        const user_1 = new User({ type: "user", login_name: "a" , password: "a", path: "/user", name: "tom"});
+        const user_1 = new User({ type: "USER", login_name: "a" , password: "a", path: "/USER", name: "tom"});
         await user_1.save();
 
-        const user_2 = new User({ type: "user", login_name: "b" , password: "b", path: "/user", name: "harry"});
+        const user_2 = new User({ type: "USER", login_name: "b" , password: "b", path: "/USER", name: "harry"});
         await user_2.save();
 
-        const user_3 = new User({ type: "user", login_name: "c" , password: "c", path: "/user", name: "peter"});
+        const user_3 = new User({ type: "USER", login_name: "c" , password: "c", path: "/USER", name: "peter"});
         await user_3.save();
 
-        const user_4 = new User({ type: "storeowner", login_name: "d" , password: "d", path: "/storeowner", name: "john"});
+        const user_4 = new User({ type: "STOREOWNER", login_name: "d" , password: "d", path: "/STOREOWNER", name: "john"});
         await user_4.save();
 
-        const user_5 = new User({ type: "storeowner", login_name: "e" , password: "e", path: "/storeowner", name: "dick"});
+        const user_5 = new User({ type: "STOREOWNER", login_name: "e" , password: "e", path: "/STOREOWNER", name: "dick"});
         await user_5.save();
 
          /////////////////////////// tag types ////////////////////////////////////////////

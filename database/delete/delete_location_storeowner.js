@@ -1,7 +1,7 @@
 const { Appointment, Location } = require('../models.js');
 let db = require('../database.js')
 
-module.exports = async function deleteLocation(loc_id, storeowner_id) {
+module.exports = async function deleteStoreOwnerLocation(loc_id, storeowner_id) {
 
     return new Promise( (resolve, reject) => {
 

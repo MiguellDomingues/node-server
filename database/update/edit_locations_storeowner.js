@@ -1,7 +1,7 @@
 const { Location, Tag } = require('../models.js');
 let db = require('../database.js')
 
-module.exports = async function editLocation(
+module.exports = async function editStoreOwnerLocation(
         storeowner_id,
         location_id,
         info, 

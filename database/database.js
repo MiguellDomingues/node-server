@@ -1,13 +1,10 @@
 let mongoose = require('mongoose');
 
-const server    = '127.0.0.1:27017';          
-const database  = 'appointment_bookings';     
-
-const uri = `mongodb://${server}/${database}`;
+const { DATABASE_URI  }  = require('../utils/constants.js');
 
 mongoose.set('strictQuery', true);
 
-const connect = async () => {  return await mongoose.connect(uri); }
+const connect = async () => {  return await mongoose.connect(DATABASE_URI); }
 
 const disconnect = async () => { await mongoose.connection.close(); }
 

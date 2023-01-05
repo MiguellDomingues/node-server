@@ -1,3 +1,8 @@
+const DATABASE_DOMAIN   = '127.0.0.1:27017';          
+const DATABASE_NAME     = 'appointment_bookings';     
+
+const DATABASE_URI      = `mongodb://${DATABASE_DOMAIN}/${DATABASE_NAME}`;
+
 const KEY_PARAM = '?key='
 
 const DOMAIN = 'http://localhost:8080'
@@ -32,4 +37,7 @@ module.exports = {
     ENDPOINT_URL_APPOINTMENT,
     ENDPOINT_URL_AUTH,
     ENDPOINT_URL_REGISTER,
+    DATABASE_DOMAIN,
+    DATABASE_NAME,
+    DATABASE_URI 
 }

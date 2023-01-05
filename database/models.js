@@ -2,8 +2,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const STATUS = ['Approved', 'In Progress', 'Completed', 'Canceled']
-const USERS = ['USER', 'STOREOWNER']
+const { STATUS , AUTH_USER_TYPES } = require('../utils/constants.js');
+
+
 
 /*
 - Approved -> in progress OR canceled 
@@ -39,7 +40,7 @@ const appointmentSchema = new mongoose.Schema({
   const userSchema = new mongoose.Schema({
     path:         String,
     name:         String,
-    type:        { type: String, enum: Object.values(USERS), required : true },
+    type:        { type: String, enum: Object.values(AUTH_USER_TYPES), required : true },
     login_name:  { type : String , unique : true, required : true, dropDups: true },
     password:    { type : String , required : true}
   });

@@ -11,11 +11,9 @@ const init                        = require('./api/init.js')
 
 app.use( cors() );          // allow react app communicate with server on same machine/diff port
 app.use( express.json() );  // this is needed to access req.body in 'post' methods
-const port = 8080;
+const { PORT } = require('./utils/constants.js');
 
-//app.use('/', router)
-
-app.listen(port, () => {
+app.listen(PORT, () => {
   console.log("server running")
 });
 

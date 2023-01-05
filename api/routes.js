@@ -2,26 +2,22 @@ const guest                       = require('./guest/guest.js')
 const auth                        = require('./auth/auth.js')
 const user                        = require('./user/user.js')
 const storeowner                  = require('./storeowner/storeowner.js')
-
-/*
-an endpoint is defined as:
-(name){ // the string path automatically becomes /(name)
-    paths:{
-        (1 or more  http methods){
-            (1 or more of USER/STOREOWNER/GUEST): endpoint callback
-        }
-    }
-}
-*/
-
+const config                      = require('./config/config.js')
 
 
 const JSON = {
 
+    configs:{
+
+        GET:{
+            STOREOWNER: config.fetchConfigs,
+            USER:       config.fetchConfigs,
+            GUEST:      config.fetchConfigs
+        },   
+    },
     locations:{
 
         GET:{
-            //STOREOWNER: [fetchLocations.validateRequestJSON, storeowner.fetchLocations, fetchLocations.buildResponseObject]
             STOREOWNER: storeowner.fetchLocations,
             USER:       user.fetchLocations,
             GUEST:      guest.fetchLocations
@@ -53,8 +49,8 @@ const JSON = {
     } 
 }
 
-const resolve = (path, req_method,auth) => {
+const resolveController = (path, req_method,auth) => {
     return JSON[path][req_method][auth]
 }
 
-module.exports = { resolve, JSON }
+module.exports = { resolveController, JSON }

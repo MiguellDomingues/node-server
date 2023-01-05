@@ -1,8 +1,6 @@
 const _session                        = require('./session.js')
 const routes                         = require('./routes')
 
-
-
 const resolve = ( (_path) => {
 
     const path = _path
@@ -34,7 +32,7 @@ const resolve = ( (_path) => {
         
         try{
             //routes[path][req.method][user_type](req, res, next)
-            routes.resolve(path, req.method, user_type)(req, res, next)
+            routes.resolveController(path, req.method, user_type)(req, res, next)
         }
         catch(err){
             console.error("error in resolver() function. path: ", path, " session: ", _session,  err)

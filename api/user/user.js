@@ -8,12 +8,14 @@ const cancelAppointment = (req, res) => {
     
     console.log("req body",req.body)
 
-    if(!res.locals.u_id){
+    const u_id = res.locals.session.auth.u_id
+
+    if(!u_id){
         console.error("res.locals.u_id is undefined")
         res.status(500).send('Internal Server Error');
     }
 
-    deleteAppointment(req.body.apt_id, res.locals.u_id)
+    deleteAppointment(req.body.apt_id, u_id)
     .then( function(raw_db_result){
 
         const res_json = deleteAppointment_format(raw_db_result)
@@ -49,7 +51,9 @@ const fetchLocations = (req,res) => {
     
     //const key = req.query.key;
 
-    const key = res.locals.u_id
+    console.log("user session: ", res.locals.session)
+
+    const key = res.locals.session.auth.u_id
 
     console.log("USER KEY: ", key)
   
@@ -101,14 +105,16 @@ const addAppointment = (req, res) => {
         
         console.log("req body",req.body)
         
-        if(!res.locals.u_id){
+        const u_id = res.locals.session.auth.u_id
+
+        if(!u_id){
             console.error("res.locals.u_id is undefined")
             res.status(500).send('Internal Server Error');
         }
         
         createAppointment (
           req.body.loc_id, 
-          res.locals.u_id,
+          u_id,
           req.body.date,
           req.body.start_time, 
           req.body.end_time).then(function(raw_db_result){

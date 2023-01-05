@@ -14,7 +14,9 @@ an endpoint is defined as:
 }
 */
 
-module.exports = {
+
+
+const JSON = {
 
     locations:{
 
@@ -50,3 +52,9 @@ module.exports = {
         
     } 
 }
+
+const resolve = (path, req_method,auth) => {
+    return JSON[path][req_method][auth]
+}
+
+module.exports = { resolve, JSON }

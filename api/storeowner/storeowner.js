@@ -15,13 +15,12 @@ const deleteLocation = (req, res) => {
     
     console.log("req body",req.body)
 
-    if(!res.locals.u_id){
-        console.error("res.locals.u_id is undefined")
-        res.status(500).send('Internal Server Error');
-    }
+    const u_id = res.locals.session.auth.u_id
 
-    //fetch the store_owner id from the session
-    const u_id = res.locals.u_id
+        if(!u_id){
+            console.error("res.locals.u_id is undefined")
+            res.status(500).send('Internal Server Error');
+        }
 
     deleteStoreOwnerLocation(req.body.loc_id, u_id)
     .then( function(raw_db_result){
@@ -59,12 +58,12 @@ const fetchLocations = (req,res) => {
     console.log("/posts/storeowner")
 
 
-    if(!res.locals.u_id){
-        console.error("res.locals.u_id is undefined")
-        res.status(500).send('Internal Server Error');
-    }
+    const u_id = res.locals.session.auth.u_id
 
-    const u_id  = res.locals.u_id
+        if(!u_id){
+            console.error("res.locals.u_id is undefined")
+            res.status(500).send('Internal Server Error');
+        }
 
     console.log("STOREOWNER KEY: ", u_id)
   
@@ -124,12 +123,14 @@ const updateAppointmentStatus = (req, res) => {
         
     console.log("req body",req.body)
 
-    if(!res.locals.u_id){
-        console.error("res.locals.u_id is undefined")
-        res.status(500).send('Internal Server Error');
-    }
+    const u_id = res.locals.session.auth.u_id
 
-    const storeowner_id =  res.locals.u_id;
+        if(!u_id){
+            console.error("res.locals.u_id is undefined")
+            res.status(500).send('Internal Server Error');
+        }
+
+    const storeowner_id =  u_id
     const apt_id = req.body.apt_id
     const status = req.body.new_status
 
@@ -173,12 +174,14 @@ const editLocation = (req, res) => {
         
     console.log("req body",req.body)
 
-    if(!res.locals.u_id){
-        console.error("res.locals.u_id is undefined")
-        res.status(500).send('Internal Server Error');
-    }
+    const u_id = res.locals.session.auth.u_id
+
+        if(!u_id){
+            console.error("res.locals.u_id is undefined")
+            res.status(500).send('Internal Server Error');
+        }
     
-    const storeowner_id = res.locals.u_id
+    const storeowner_id = u_id
     const location = req.body.location
 
     editStoreOwnerLocation (
@@ -231,13 +234,15 @@ const addLocation = (req, res) => {
         
     console.log("req body",req.body)
 
-    if(!res.locals.u_id){
-        console.error("res.locals.u_id is undefined")
-        res.status(500).send('Internal Server Error');
-    }
+    const u_id = res.locals.session.auth.u_id
+
+        if(!u_id){
+            console.error("res.locals.u_id is undefined")
+            res.status(500).send('Internal Server Error');
+        }
  
     createLocation (
-        res.locals.u_id,
+        u_id,
         req.body.info,
         req.body.address, 
         req.body.LatLng.lat,

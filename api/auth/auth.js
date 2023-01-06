@@ -1,10 +1,9 @@
 
 const auth                          = require('../../database/read/auth.js')
 const register                      = require('../../database/create/register.js')
-
 const session                       = require('../session.js')
 
-
+const log = require('../../utils/logger.js')
 
 /////////////////////////////////////////////////////////////
 
@@ -13,6 +12,8 @@ const validateLogin = (req,res, next) => {
     console.log("/auth")
     
     console.log("req body",req.body)
+
+    log("validateLogin", "validateLogin", req.body)
 
     auth(req.body.user_name, req.body.password).then ( function(raw_db_result){
 

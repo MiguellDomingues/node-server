@@ -49,8 +49,8 @@ const JSON = {
     } 
 }
 
-const resolveController = (path, req_method,auth) => {
-    return JSON[path][req_method][auth]
-}
+module.exports = { JSON }
 
-module.exports = { resolveController, JSON }
+
+
+

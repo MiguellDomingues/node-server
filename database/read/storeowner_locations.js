@@ -34,7 +34,8 @@ module.exports = async function fetchStoreOwnerLocations(storeowner_id) {
                      as: "appointments",
                      pipeline:[                      
                         {$lookup: {from: "users", localField: "user", foreignField: "_id", as: "user", pipeline:[{$project: {"name": 1}} ] },}, //join users with appointments, fetching just the appointee name
-                        {$project: {"user": 1,"_id:": 1, "date": 1, "start": 1, "end": 1, "status": 1}} 
+                        {$lookup: {from: "tags", localField: "tags", foreignField: "_id", as: "tags",  pipeline: [ {$project: {"tag_name": 1,"_id": 0 }},] },},   
+                        {$project: {"user": 1,"_id:": 1, "date": 1, "start": 1, "end": 1, "status": 1, "tags":1}} 
                     ],                   
                  },              
              },

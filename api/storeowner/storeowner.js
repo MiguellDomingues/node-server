@@ -99,11 +99,13 @@ const storeOwnerLocations_format = (db_result) => {
                         LatLng: { lat: loc.lat, lng: loc.lng},
                         appointments: loc.appointments.map( (apt) => {
                             //console.log("--------apt: ", apt)
-                            
+                            apt.appointment_types = apt.tags.map(tag=>tag.tag_name)   
                             apt.id = String(apt._id)
                             apt.appointee = apt.user[0].name 
                             delete apt._id
+                            delete apt.tags
                             delete apt.user
+                            console.log("STOREOWNER apt: ", apt)
                             return apt
                         } ),
                         icons: loc.tags.map( (tag) => tag.tag_name )

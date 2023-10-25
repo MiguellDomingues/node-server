@@ -75,7 +75,6 @@ const fetchLocations = (req,res) => {
 }
 
 const fetchUserLocations_format = (db_result) => {
-
     return {
         
         posts: db_result.map( (loc) => {
@@ -86,8 +85,10 @@ const fetchUserLocations_format = (db_result) => {
                         info: loc.info,
                         LatLng: { lat: loc.lat, lng: loc.lng},
                         appointments: loc.appointments.map( (apt) => {
-                            apt.id = String(apt._id)
+                            apt.appointment_types = apt.tags.map(tag=>tag.tag_name)               
+                            apt.id = String(apt._id)                  
                             delete apt._id
+                            delete apt.tags
                             return apt
                         } ),
                         icons: loc.tags.map( (tag) => tag.tag_name )
@@ -117,7 +118,8 @@ const addAppointment = (req, res) => {
           u_id,
           req.body.date,
           req.body.start_time, 
-          req.body.end_time).then(function(raw_db_result){
+          req.body.end_time,
+          req.body.apt_types).then(function(raw_db_result){
     
             const res_json = createAppointment_format(raw_db_result)
     

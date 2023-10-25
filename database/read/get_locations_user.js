@@ -35,8 +35,9 @@ module.exports = async function fetchLocationsUser(user_id) {
                      as: "appointments",
 
                      pipeline: [                     
-                        {$match: {user: db.ObjectId(user_id) }},                    
-                        {$project: {"_id:": 1, "date": 1, "start": 1, "end": 1 ,"status":1}, } //hide user/location fields from appointment
+                        {$match: {user: db.ObjectId(user_id) }},
+                        {$lookup: {from: "tags", localField: "tags", foreignField: "_id", as: "tags",  pipeline: [ {$project: {"tag_name": 1,"_id": 0 }},] },},                    
+                        {$project: {"_id:": 1, "date": 1, "start": 1, "end": 1 ,"status":1, "tags":1}, } //hide user/location fields from appointment
                     ],                   
                  },              
              },

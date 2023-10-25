@@ -24,7 +24,8 @@ const appointmentSchema = new mongoose.Schema({
     },
     //user/appointment fk's
     user: {  type: Schema.Types.ObjectId, ref: 'User' },
-    location: {  type: Schema.Types.ObjectId, ref: 'Location' }
+    location: {  type: Schema.Types.ObjectId, ref: 'Location' },
+    tags: [{  type: Schema.Types.ObjectId, ref: 'Tag' }]
   });
 
   const locationSchema = new mongoose.Schema({

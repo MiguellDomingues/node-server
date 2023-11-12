@@ -92,19 +92,34 @@ module.exports.createDB = async function createDB() {
         
         /////////////////////////////////// locations ///////////////////////////////////////
 
-        const location_1 = new Location({  address: "abc ave 123456", lat: 43.919617760254686, lng: -0.8844604492, info: "some info stuffs 0",
+        const location_1 = new Location({  
+            address: "13880 70th ave", 
+            lat: 49.1277492, 
+            lng: -122.8384156, 
+            info: "We are the BMW, Volvo and Mercedes experts!",
+            city:     "Surrey",
+            province: "British Columbia",
+            postal_code: "V3W0T3",
+            phone: "604-123-5678",
+            email: "joesautomotive@gmail.com",
+            title: "Joes Automotive",
             owner: user_4._id,
             tags: [tag_1._id, tag_3._id, tag_5._id]
         });
         await location_1.save();
 
-        const location_2 = new Location({  address: "abc ave 7891011", lat: 47.919617760254686, lng: -0.7844604492, info: "some info stuffs 1",
-            owner: user_4._id,
-            tags: [tag_2._id, tag_4._id, tag_6._id]
-        });
-        await location_2.save();
+        const location_3 = new Location({ 
+            address: "13637 72 ave", 
+            lat: 49.133807, 
+            lng: -122.844349, 
+            info: "We know brakes and transmissions like nobody else!",
+            city:     "Surrey",
+            province: "British Columbia",
+            postal_code: "V3W2P2",
+            phone: "604-321-8765",
+            email: "budgetbreaknmuffler@gmail.com",
+            title: "Budget Break and Muffler",
 
-        const location_3 = new Location({ address: "abcdef ave 12131415", lat: 50.919617760254686, lng: -0.7844604492, info: "some info stuffs 2",
             owner: user_5._id,
             tags: [tag_4._id, tag_5._id, tag_6._id]
         });
@@ -112,63 +127,45 @@ module.exports.createDB = async function createDB() {
 
         /////////////////////////// location tags ////////////////////////////////////////////
 
-        /*
 
-        const location_tag_10 = new LocationTag({ location: location_1._id, tag: tag_1._id});
-        await location_tag_10.save();
+        /////////////////////////// appointments ////////////////////////////////////////////
 
-        const location_tag_11 = new LocationTag({ location: location_1._id, tag: tag_2._id});
-        await location_tag_11.save();
+         let today = new Date();
+         today.setDate(today.getDate());
 
-        const location_tag_12 = new LocationTag({ location: location_1._id, tag: tag_3._id});
-        await location_tag_12.save();
-
-
-        const location_tag_20 = new LocationTag({ location: location_2._id, tag: tag_2._id});
-        await location_tag_20.save();
-
-        const location_tag_21 = new LocationTag({ location: location_2._id, tag: tag_4._id});
-        await location_tag_21.save();
-
-        const location_tag_22 = new LocationTag({ location: location_2._id, tag: tag_6._id});
-        await location_tag_22.save();
-
-
-        const location_tag_30 = new LocationTag({ location: location_3._id, tag: tag_1._id});
-        await location_tag_30.save();
-
-        const location_tag_31 = new LocationTag({ location: location_3._id, tag: tag_3._id});
-        await location_tag_31.save();
-
-        const location_tag_32 = new LocationTag({ location: location_3._id, tag: tag_5._id});
-        await location_tag_32.save();
-
-        */
-
-         /////////////////////////// appointments ////////////////////////////////////////////
-
-         //LOC 1: tags: [tag_1._id, tag_3._id, tag_5._id]
-         //LOC 2: tags: tags: [tag_2._id, tag_4._id, tag_6._id]
-
-        const appointment_1 = new Appointment({  date: "10/10/22", start: "9:00", end: "10:00", status:'Approved', user: user_1._id, location: location_1._id, //1
+        const appointment_1 = new Appointment({  date: (today.toISOString().split('T')[0]), start: "11:00", end: "12:00", status:'Approved', user: user_1._id, location: location_1._id, //1
             tags: [tag_1._id, tag_3._id]});
         await appointment_1.save();
 
-        const appointment_2 = new Appointment({  date: "10/11/22", start: "11:00", end: "12:00", status:'Approved', user: user_1._id, location: location_1._id, //1
+        const appointment_2 = new Appointment({  date: (today.toISOString().split('T')[0]), start: "9:00", end: "10:00", status:'Approved', user: user_2._id, location: location_1._id, //1
             tags: [tag_3._id, tag_5._id]});
         await appointment_2.save();
 
-        const appointment_3 = new Appointment({  date: "10/11/22", start: "8:00", end: "9:00", status:'In Progress', user: user_1._id, location: location_2._id, //2
+        const appointment_3 = new Appointment({  date: (today.toISOString().split('T')[0]), start: "14:00", end: "15:00", status:'In Progress', user: user_2._id, location: location_1._id, //2
             tags: [tag_2._id, tag_6._id]});
         await appointment_3.save();
 
-        const appointment_4 = new Appointment({  date: "1/1/22", start: "2:00", end: "5:00", status:'Completed', user: user_2._id, location: location_1._id, //1
+         let tommorow = new Date();
+         tommorow.setDate(tommorow.getDate()+1);
+
+        const appointment_4 = new Appointment({  date: (tommorow.toISOString().split('T')[0]), start: "14:00", end: "15:00", status:'Completed', user: user_1._id, location: location_1._id, //1
             tags: [tag_3._id]});
         await appointment_4.save();
 
-        const appointment_5 = new Appointment({  date: "8/2/22", start: "2:00", end: "5:00", status:'Canceled', user: user_2._id, location: location_2._id, //2
+        const appointment_5 = new Appointment({  date: (tommorow.toISOString().split('T')[0]), start: "15:00", end: "16:00", status:'Canceled', user: user_1._id, location: location_1._id, //2
             tags: [tag_2._id, tag_4._id, tag_6._id]});
         await appointment_5.save();
+
+        let in2Days = new Date();
+        in2Days.setDate(in2Days.getDate()+2);
+
+        const appointment_6 = new Appointment({  date: (in2Days.toISOString().split('T')[0]), start: "10:00", end: "11:00", status:'Completed', user: user_1._id, location: location_1._id, //1
+            tags: [tag_3._id]});
+        await appointment_6.save();
+
+        const appointment_7 = new Appointment({  date: (in2Days.toISOString().split('T')[0]), start: "6:00", end: "7:00", status:'Canceled', user: user_1._id, location: location_1._id, //2
+            tags: [tag_2._id, tag_4._id, tag_6._id]});
+        await appointment_7.save();
 
      } finally {
          // Close the connection to the MongoDB cluster

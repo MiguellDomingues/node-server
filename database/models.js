@@ -33,6 +33,12 @@ const appointmentSchema = new mongoose.Schema({
     lat:      Number,
     lng:      Number,
     info:     String,
+    city:     String,
+    province: String,
+    postal_code: String,
+    phone: String,
+    email: String,
+    title: String,
     //user/appointment fk's
     owner: {  type: Schema.Types.ObjectId, ref: 'User' },
     tags: [{  type: Schema.Types.ObjectId, ref: 'Tag' }]

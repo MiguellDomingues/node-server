@@ -35,6 +35,7 @@ const fetchGuestLocations_format = (db_result) => {
                         province: apt.province,
                         postal_code: apt.postal_code,
                         phone: apt.phone,
+                        country: apt.country,
                         email: apt.email,
                         title: apt.title,
                         icons: apt.tags.map( (tag) => tag.tag_name )

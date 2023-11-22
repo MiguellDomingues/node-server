@@ -99,6 +99,7 @@ module.exports.createDB = async function createDB() {
             info: "We are the BMW, Volvo and Mercedes experts!",
             city:     "Surrey",
             province: "British Columbia",
+            country: "Canada",
             postal_code: "V3W0T3",
             phone: "604-123-5678",
             email: "joesautomotive@gmail.com",
@@ -115,11 +116,11 @@ module.exports.createDB = async function createDB() {
             info: "We know brakes and transmissions like nobody else!",
             city:     "Surrey",
             province: "British Columbia",
+            country: "Canada",
             postal_code: "V3W2P2",
             phone: "604-321-8765",
             email: "budgetbreaknmuffler@gmail.com",
             title: "Budget Break and Muffler",
-
             owner: user_5._id,
             tags: [tag_4._id, tag_5._id, tag_6._id]
         });

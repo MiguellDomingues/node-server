@@ -98,6 +98,7 @@ const storeOwnerLocations_format = (db_result) => {
                         info: loc.info,
                         LatLng: { lat: loc.lat, lng: loc.lng},
                         city: loc.city,
+                        country: loc.country,
                         province: loc.province,
                         postal_code: loc.postal_code,
                         phone: loc.phone,

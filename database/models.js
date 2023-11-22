@@ -35,6 +35,7 @@ const appointmentSchema = new mongoose.Schema({
     info:     String,
     city:     String,
     province: String,
+    country: String,
     postal_code: String,
     phone: String,
     email: String,

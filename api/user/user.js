@@ -84,7 +84,7 @@ const fetchUserLocations_format = (db_result) => {
                         address: loc.address, 
                         info: loc.info,
                         LatLng: { lat: loc.lat, lng: loc.lng},
-
+                        country: loc.country,
                         city: loc.city,
                         province: loc.province,
                         postal_code: loc.postal_code,

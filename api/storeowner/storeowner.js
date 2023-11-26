@@ -193,15 +193,7 @@ const editLocation = (req, res) => {
     const storeowner_id = u_id
     const location = req.body.location
 
-    editStoreOwnerLocation (
-        storeowner_id,
-        location.id,
-        location.info,
-        location.address,
-        location.LatLng.lat,
-        location.LatLng.lng,
-        location.icons)
-        .then(function(raw_db_result){
+    editStoreOwnerLocation (storeowner_id,location).then(function(raw_db_result){
   
           const res_json = editStoreOwnerLocation_format(raw_db_result)
 

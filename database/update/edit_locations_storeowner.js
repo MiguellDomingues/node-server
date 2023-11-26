@@ -1,35 +1,37 @@
 const { Location, Tag } = require('../models.js');
 let db = require('../database.js')
 
-module.exports = async function editStoreOwnerLocation(
-        storeowner_id,
-        location_id,
-        info, 
-        address, 
-        lat, 
-        lng, 
-        req_tags
-    ){
+module.exports = async function editStoreOwnerLocation(storeowner_id,location){
    
     return new Promise( (resolve, reject) => {
 
         // since i used 2 queries here, need to change the flow of then/catch/finally
          db.connect().then( ()=>{
 
+            const {LatLng: {lat, lng}, address, city, country, email, id, icons: req_tags, info, phone, postal_code, province, title } =  location
+
             Tag.find({ tag_name: { $in: req_tags } })   // fetch the ids where req_tags strings = tag_name in Tag collection
             .then( (tags) => { 
 
                 Location.findOneAndUpdate(
                     {   // filter: match the location id and storeowner id with the document to update
-                        _id:    location_id,
+                        //_id:    location_id,
+                        _id:    id,
                         owner:  storeowner_id,
                     },              
                     {   //update fields: update the location by replacing every feild                  
-                        info:       info, 
-                        address:    address,
-                        lat:        lat,
-                        lng:        lng,
-                        tags:       tags.map( (tag) => {return {_id: tag._id}} ) // input an array of tag id's
+                        info:        info, 
+                        address:     address,
+                        lat:         lat,
+                        lng:         lng,
+                        city:        city,
+                        country:     country,
+                        email:       email,
+                        phone:       phone,
+                        postal_code: postal_code,
+                        province:    province,
+                        title:       title,
+                        tags:        tags.map( (tag) => {return {_id: tag._id}} ) // input an array of tag id's
                     }, 
                     {   //options: return the modifed document
                         new: true 

@@ -46,10 +46,38 @@ const JSON = {
         PATCH: { STOREOWNER: storeowner.updateAppointmentStatus },
         DELETE: { USER: user.cancelAppointment}
         
+    },
+
+}
+
+const testJSON = {
+    availability:{
+        
+        GET: { STOREOWNER: ()=>{console.log()} },
+        POST: { STOREOWNER: ()=>{console.log()} },
+        
+        
+        workingplan: {
+            GET: { STOREOWNER: ()=>{console.log()} },
+            PATCH:  { STOREOWNER: ()=>{console.log()} },
+        },
+
+        breaks: {
+            GET: { STOREOWNER: ()=>{console.log()} },
+            DELETE: { STOREOWNER: ()=>{console.log()} },
+            PATCH:  { STOREOWNER: ()=>{console.log()} },
+        },
+
+        servicedurations: {
+            GET: { STOREOWNER: ()=>{console.log()} },
+            PATCH:  { STOREOWNER: ()=>{console.log()} },
+        }    
     } 
 }
 
-module.exports = { JSON }
+module.exports = { JSON, testJSON }
+
+
 
 
 

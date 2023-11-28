@@ -83,7 +83,12 @@ the closure then resolves the method/user_type to invoke the matching function i
 const routeResolver = ( (path, routesJSON) => {
     return function(req, res, next) {
 
-        const key = req.query.key
+
+        console.log("header key",req.headers.key);
+
+        const key = req.headers.key//req.query.key
+
+        //console.log("query key: ", req.query.key);
 
         const session = _session.getSession(key) 
         const user_type = session.auth.type

@@ -30,8 +30,11 @@ const JSON = {
 
     auth:{
         
-        POST: { GUEST: auth.validateLogin }
-        
+        POST: { 
+            GUEST: auth.validateLogin, 
+            STOREOWNER: auth.LogOutSession,
+            USER:       auth.LogOutSession,
+        },     
     },
 
     register:{
@@ -47,6 +50,28 @@ const JSON = {
         DELETE: { USER: user.cancelAppointment}
         
     },
+
+    availability:{
+        
+        
+        workingplans: {
+            GET: { STOREOWNER: storeowner.getWorkingPlans,
+                   GUEST: guest.fetchLocations } ,
+            PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH workingplan")} },
+        },
+
+        breaks: {
+            GET: { STOREOWNER: (req, res)=>{console.log("GET breaks")} },
+            DELETE: { STOREOWNER: (req, res)=>{console.log("DELETE breaks")} },
+            PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH breaks")} },
+        },
+
+        servicedurations: {
+            GET: { STOREOWNER: (req, res)=>{console.log("GET servicedurations")} },
+            PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH servicedurations")} },
+        }    
+    },
+
 
 }
 

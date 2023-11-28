@@ -29,9 +29,12 @@ const startSession = (key, type) => {
     return client_key 
 }
 
+const endSession = (key) => sessionKeys.delete(key)
+
+
 const getSession = (key) => key && sessionKeys.has(key) ? sessionKeys.get(key) : getNoAuth()
 
-module.exports = { startSession, getSession, }
+module.exports = { startSession, getSession, endSession,sessionKeys }
 
 
 

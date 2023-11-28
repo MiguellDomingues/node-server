@@ -3,7 +3,6 @@ const auth                          = require('../../database/read/auth.js')
 const register                      = require('../../database/create/register.js')
 const session                       = require('../session.js')
 
-const log = require('../../utils/logger.js')
 
 /////////////////////////////////////////////////////////////
 
@@ -13,14 +12,22 @@ const validateLogin = (req,res, next) => {
     
     console.log("req body",req.body)
 
-    log("validateLogin", "validateLogin", req.body)
+    const {user_name, password} = req.body
 
-    auth(req.body.user_name, req.body.password).then ( function(raw_db_result){
+    auth(user_name, password).then (function(raw_db_result){
 
-            const res_json = valiadateLogin_format(raw_db_result)
+        const res_json = valiadateLogin_format(raw_db_result)
+        console.log("auth response", res_json)
 
+        if(Object.keys(res_json).length === 0){
+            console.log("bad creds", res_json)
+            res.status(403).send(JSON.stringify({ error: 'Provided Credentials Not Found'}))
+        }else{
+            console.log("OK", res_json)
             res.setHeader('Content-Type', 'application/json');
             res.send( JSON.stringify(res_json) );
+        }
+
 
         }).catch( (err)=>{
 
@@ -54,10 +61,12 @@ const registerNewUser = (req,res) => {
 
     register(req.body.user_name, req.body.password, req.body.type)
     .then( function(raw_db_result){
+        
+        const res_json = registerNewUser_format(raw_db_result)  
 
-        const res_json = registerNewUser_format(raw_db_result)     
         res.setHeader('Content-Type', 'application/json');
         res.send( JSON.stringify(res_json) );
+        
 
     }).catch( (err)=>{
 
@@ -81,8 +90,22 @@ const registerNewUser_format = (db_result) => {
         }      
 }
 
+const LogOutSession = (req,res) =>{
+
+    console.log("logout session")
+
+    const key = req.headers.key
+
+    if(session.endSession(key)){
+        res.send(JSON.stringify('session successfully ended'));
+    }else{
+        res.send(JSON.stringify('session key not found. end session anyways'));
+    }
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-module.exports = { validateLogin, registerNewUser }
+module.exports = { validateLogin, registerNewUser,LogOutSession }

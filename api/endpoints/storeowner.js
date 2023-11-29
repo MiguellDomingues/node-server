@@ -127,6 +127,59 @@ const deleteStoreOwnerLocation_format = (db_result, loc_id) => {
 
 const fetchLocations = (req,res) => {
 
+    const storeOwnerLocations_format = (db_result) => {
+
+        const formatAppointments = (apts) => apts.map(apt => {
+            apt.appointment_types = apt.tags.map(tag=>tag.tag_name)   
+            apt.id = String(apt._id)
+            apt.appointee = apt.user[0].name 
+            delete apt._id
+            delete apt.tags
+            delete apt.user
+            return apt
+        })
+    
+        const formatWorkingPlan = (wps) => wps.map(wp => {
+            wp.id = String(wp._id)
+            delete wp._id
+            return {...wp}
+        })
+    
+        const formatBreaks = (breaks) => breaks.map(b => {
+            b.id = String(b._id)
+            delete b._id
+            return {...b}
+        })
+    
+        const formatServiceDurations= (sds) => sds.map(sd => ({duration: sd.duration, service: sd.service.tag_name}))
+    
+        return { 
+            posts: db_result.map( loc => {
+                //console.log("///////////loc: ", loc)
+               // console.log("loc: ", loc.serviceDurations)
+                //console.log("loc: ", loc.results.input)
+                return {
+                    id:               String(loc._id), 
+                    address:          loc.address, 
+                    info:             loc.info,
+                    LatLng:           { lat: loc.lat, lng: loc.lng},
+                    city:             loc.city,
+                    country:          loc.country,
+                    province:         loc.province,
+                    postal_code:      loc.postal_code,
+                    phone:            loc.phone,
+                    email:            loc.email,
+                    title:            loc.title,
+                    workingPlan:      formatWorkingPlan(loc.workingPlan),
+                    breaks:           formatBreaks(loc.breaks),
+                    serviceDurations: formatServiceDurations(loc.serviceDurations),
+                    appointments:     formatAppointments(loc.appointments),
+                    icons:            loc.tags.map( (tag) => tag.tag_name )
+                }
+            })        
+        }  
+    }
+
     console.log("/posts/storeowner")
 
 
@@ -141,7 +194,7 @@ const fetchLocations = (req,res) => {
   
     fetchStoreOwnerLocations(u_id).then ( function(result){
 
-        //console.log(result)
+        console.log(result)
 
         const res_json = storeOwnerLocations_format(result)
         res.setHeader('Content-Type', 'application/json');
@@ -154,44 +207,6 @@ const fetchLocations = (req,res) => {
       res.status(500).send('Internal Server Error');
 
     }); 
-}
-
-const storeOwnerLocations_format = (db_result) => {
-
-    return {
-        
-        posts: db_result.map( (loc) => {
-
-            //console.log("loc: ", loc)
-
-                    return {
-                        id: String(loc._id), 
-                        address: loc.address, 
-                        info: loc.info,
-                        LatLng: { lat: loc.lat, lng: loc.lng},
-                        city: loc.city,
-                        country: loc.country,
-                        province: loc.province,
-                        postal_code: loc.postal_code,
-                        phone: loc.phone,
-                        email: loc.email,
-                        title: loc.title,
-                        appointments: loc.appointments.map( (apt) => {
-                            //console.log("--------apt: ", apt)
-                            apt.appointment_types = apt.tags.map(tag=>tag.tag_name)   
-                            apt.id = String(apt._id)
-                            apt.appointee = apt.user[0].name 
-                            delete apt._id
-                            delete apt.tags
-                            delete apt.user
-                            console.log("STOREOWNER apt: ", apt)
-                            return apt
-                        } ),
-                        icons: loc.tags.map( (tag) => tag.tag_name )
-                    }
-                })
-                
-    }  
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

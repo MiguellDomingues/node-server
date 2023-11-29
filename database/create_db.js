@@ -120,7 +120,7 @@ function createBreakDocuments(breaks){
     return breaks.map(b=>new Break({...b}))
 }
 
-function createServiceDurationDocuments(tagIds, durations){
+function createServiceDurations(tagIds, durations){
     return durations.map((d, i)=>new ServiceDuration({service: tagIds[i], duration: d.duration}))
 }
 
@@ -226,7 +226,7 @@ module.exports.createDB = async function createDB() {
             title: "Joes Automotive",
             workingPlan:      createWorkingDayDocuments(mockWorkingPlan),
             breaks:           createBreakDocuments(mockBreaks),
-            serviceDurations: createServiceDurationDocuments([tag_1._id, tag_3._id, tag_5._id], mockDurations),
+            serviceDurations: createServiceDurations([tag_1._id, tag_3._id, tag_5._id], mockDurations),
             owner: user_4._id,
             tags: [tag_1._id, tag_3._id, tag_5._id]
         });
@@ -246,7 +246,7 @@ module.exports.createDB = async function createDB() {
             title: "Budget Break and Muffler",
             workingPlan: createWorkingDayDocuments(defaultWorkingPlan),
             breaks:           createBreakDocuments([]),
-            serviceDurations: createServiceDurationDocuments([tag_4._id, tag_5._id, tag_6._id], mockDurations),
+            serviceDurations: createServiceDurations([tag_4._id, tag_5._id, tag_6._id], mockDurations),
             owner: user_5._id,
             tags: [tag_4._id, tag_5._id, tag_6._id]
         });

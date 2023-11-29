@@ -1,8 +1,8 @@
-const guest                       = require('./guest/guest.js')
-const auth                        = require('./auth/auth.js')
-const user                        = require('./user/user.js')
-const storeowner                  = require('./storeowner/storeowner.js')
-const config                      = require('./config/config.js')
+const guest                       = require('./endpoints/guest.js')
+const auth                        = require('./endpoints/auth.js')
+const user                        = require('./endpoints/user.js')
+const storeowner                  = require('./endpoints/storeowner.js')
+const config                      = require('./endpoints/config.js')
 
 
 const JSON = {
@@ -55,17 +55,20 @@ const JSON = {
         
         
         workingplans: {
+
             GET: { STOREOWNER:storeowner.fetchWorkingPlans }, 
             PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH workingplan")} },
         },
 
         breaks: {
+
             GET: { STOREOWNER: storeowner.fetchBreaks },
             DELETE: { STOREOWNER: (req, res)=>{console.log("DELETE breaks")} },
             PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH breaks")} },
         },
 
         servicedurations: {
+            
             GET: { STOREOWNER: storeowner.fetchServiceDurations },
             PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH servicedurations")} },
         }    

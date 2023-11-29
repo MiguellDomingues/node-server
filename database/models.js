@@ -63,7 +63,7 @@ const appointmentSchema = new mongoose.Schema({
     phone: String,
     email: String,
     title: String,
-    workingPlans:     [workingDaySchema],
+    workingPlan:      [workingDaySchema],
     breaks:           [breakSchema],
     serviceDurations: [serviceDurationSchema],
     //user/appointment fk's

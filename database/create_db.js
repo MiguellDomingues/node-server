@@ -3,7 +3,127 @@ const uri      = "mongodb://127.0.0.1:27017/appointment_bookings";
 
 //const { Schema } = mongoose
 
-const {User, Location, TagType , Tag , LocationTag , Appointment } = require('./models.js');
+const {User, Location, TagType , Tag , Appointment, WorkingDay, Break, ServiceDuration } = require('./models.js');
+
+
+const mockWorkingPlan = [
+    {
+        day: "Monday",
+        start: "08:00",
+        end:   "16:00",
+    },
+    {
+        day: "Tuesday",
+        start: "06:00",
+        end:   "16:00",
+    },
+    {
+        day: "Wednesday",
+        start: "08:00",
+        end:   "18:00",
+    },
+    {
+        day: "Thursday",
+        start: "08:00",
+        end:   "16:00",
+    },
+    {
+        day: "Friday",
+        start: "12:15",
+        end:   "14:30"
+    },
+    {
+        day: "Saturday",
+        start: "",
+        end:   ""
+    },
+    {
+        day: "Sunday",
+        start: "",
+        end:   ""
+    },
+]
+
+const defaultWorkingPlan = [
+    {
+        day: "Monday",
+        start: "",
+        end:   "",
+    },
+    {
+        day: "Tuesday",
+        start: "",
+        end:   "",
+    },
+    {
+        day: "Wednesday",
+        start: "0",
+        end:   "",
+    },
+    {
+        day: "Thursday",
+        start: "",
+        end:   "",
+    },
+    {
+        day: "Friday",
+        start: "",
+        end:   ""
+    },
+    {
+        day: "Saturday",
+        start: "",
+        end:   ""
+    },
+    {
+        day: "Sunday",
+        start: "",
+        end:   ""
+    },
+]
+
+let mockBreaks = [
+    {
+        days: ["Mon", "Tue", "Wed", "Thu","Fri"],
+        start: "10:15",
+        end: "10:30"
+    },
+    {
+        days: ["Mon", "Tue", "Wed", "Thu",],
+        start: "12:00",
+        end: "13:00"
+    },
+    {
+        days: ["Fri"],
+        start: "11:00",
+        end: "11:30"
+    },
+]
+
+const mockDurations = [
+    {
+        duration: "25"
+    },
+    {
+       duration: "45"
+    },
+     {
+        duration: "30"
+     }, 
+]
+
+function createWorkingDayDocuments(workingPlans){
+    return workingPlans.map(wp=>new WorkingDay({...wp}))
+}
+
+function createBreakDocuments(breaks){
+    return breaks.map(b=>new Break({...b}))
+}
+
+function createServiceDurationDocuments(tagIds, durations){
+    return durations.map((d, i)=>new ServiceDuration({service: tagIds[i], duration: d.duration}))
+}
+
 
 module.exports.createDB = async function createDB() {
    
@@ -104,6 +224,9 @@ module.exports.createDB = async function createDB() {
             phone: "604-123-5678",
             email: "joesautomotive@gmail.com",
             title: "Joes Automotive",
+            workingPlan:      createWorkingDayDocuments(mockWorkingPlan),
+            breaks:           createBreakDocuments(mockBreaks),
+            serviceDurations: createServiceDurationDocuments([tag_1._id, tag_3._id, tag_5._id], mockDurations),
             owner: user_4._id,
             tags: [tag_1._id, tag_3._id, tag_5._id]
         });
@@ -121,6 +244,9 @@ module.exports.createDB = async function createDB() {
             phone: "604-321-8765",
             email: "budgetbreaknmuffler@gmail.com",
             title: "Budget Break and Muffler",
+            workingPlan: createWorkingDayDocuments(defaultWorkingPlan),
+            breaks:           createBreakDocuments([]),
+            serviceDurations: createServiceDurationDocuments([tag_4._id, tag_5._id, tag_6._id], mockDurations),
             owner: user_5._id,
             tags: [tag_4._id, tag_5._id, tag_6._id]
         });

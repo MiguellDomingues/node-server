@@ -22,11 +22,17 @@ const ICONS = [
 
 const STATUS = ['Approved', 'In Progress', 'Completed', 'Canceled']
 
+const DAY_NAMES = ['Monday','Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+const DAY_ABBREVIATIONS = ['Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
 const AUTH_USER_TYPES = ['USER', 'STOREOWNER']
 const NO_AUTH_USER_TYPE = ['GUEST']
 const PORT = 8080
 
 module.exports = {
+    DAY_NAMES,
+    DAY_ABBREVIATIONS,
     STATUS, 
     ICONS,
     AUTH_USER_TYPES, 

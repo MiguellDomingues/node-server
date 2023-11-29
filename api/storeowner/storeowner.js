@@ -1,4 +1,4 @@
-
+const { v4: uuidv4 } = require('uuid');
 const deleteStoreOwnerLocation  = require('../../database/delete/delete_location_storeowner.js')
 const fetchStoreOwnerLocations  = require('../../database/read/storeowner_locations.js')
 
@@ -6,6 +6,78 @@ const editStoreOwnerLocation    = require('../../database/update/edit_locations_
 const editAppointment           = require('../../database/update/edit_appointment.js')
 
 const createLocation            = require('../../database/create/post_locations_storeowner.js')
+
+const mockWorkingPlan = [
+    {
+        day: "Monday",
+        start: "08:00",
+        end:   "16:00",
+    },
+    {
+        day: "Tuesday",
+        start: "06:00",
+        end:   "16:00",
+    },
+    {
+        day: "Wednesday",
+        start: "08:00",
+        end:   "18:00",
+    },
+    {
+        day: "Thursday",
+        start: "08:00",
+        end:   "16:00",
+    },
+    {
+        day: "Friday",
+        start: "12:15",
+        end:   "14:30"
+    },
+    {
+        day: "Saturday",
+        start: "",
+        end:   ""
+    },
+    {
+        day: "Sunday",
+        start: "",
+        end:   ""
+    },
+]
+
+let mockBreaks = [
+    {
+        days: ["Mon", "Tue", "Wed", "Thu","Fri"],
+        start: "10:15",
+        end: "10:30"
+    },
+    {
+        days: ["Mon", "Tue", "Wed", "Thu",],
+        start: "12:00",
+        end: "13:00"
+    },
+    {
+        days: ["Fri"],
+        start: "11:00",
+        end: "11:30"
+    },
+]
+
+const mockServiceDurations = [
+    {
+       type: "MdOutlineCarRepair",
+       duration: "45"
+    },
+    {
+        type: "FaWrench",
+        duration: "25"
+     },
+     {
+        type: "FaOilCan",
+        duration: "30"
+     }, 
+]
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -290,6 +362,22 @@ const createLocation_format = (db_result) => {
       
 }
 
+const fetchWorkingPlans = (req, res)=>{
+    console.log(res.locals.session)
+    res.send( JSON.stringify({ workingPlan: [...mockWorkingPlan]}) );
+}
+
+const fetchBreaks = (req, res)=>{
+    console.log(res.locals.session)
+    const  _mockBreaks = mockBreaks.map((b)=>( {...b, id: uuidv4() } )) //temp
+    res.send( JSON.stringify({ breaks: [..._mockBreaks]}) );
+}
+
+const fetchServiceDurations = (req, res)=>{
+    console.log(res.locals.session)
+    res.send( JSON.stringify({ serviceDurations: [...mockServiceDurations ]}) );
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports = { deleteLocation, fetchLocations, updateAppointmentStatus, editLocation, addLocation }
+module.exports = { deleteLocation, fetchLocations, updateAppointmentStatus, editLocation, addLocation, fetchWorkingPlans, fetchBreaks, fetchServiceDurations}

@@ -55,19 +55,18 @@ const JSON = {
         
         
         workingplans: {
-            GET: { STOREOWNER: storeowner.getWorkingPlans,
-                   GUEST: guest.fetchLocations } ,
+            GET: { STOREOWNER:storeowner.fetchWorkingPlans }, 
             PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH workingplan")} },
         },
 
         breaks: {
-            GET: { STOREOWNER: (req, res)=>{console.log("GET breaks")} },
+            GET: { STOREOWNER: storeowner.fetchBreaks },
             DELETE: { STOREOWNER: (req, res)=>{console.log("DELETE breaks")} },
             PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH breaks")} },
         },
 
         servicedurations: {
-            GET: { STOREOWNER: (req, res)=>{console.log("GET servicedurations")} },
+            GET: { STOREOWNER: storeowner.fetchServiceDurations },
             PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH servicedurations")} },
         }    
     },
@@ -82,8 +81,8 @@ const testJSON = {
         POST: { STOREOWNER: ()=>{console.log()} },
         
         
-        workingplan: {
-            GET: { STOREOWNER: ()=>{console.log()} },
+        workingplans: {
+            GET: { STOREOWNER:storeowner.fetchWorkingPlans },
             PATCH:  { STOREOWNER: ()=>{console.log()} },
         },
 

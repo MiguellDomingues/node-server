@@ -1,3 +1,6 @@
+const { sessionKeys } = require('./session.js')
+
+
 const _session                        = require('./session.js')
 const routes                         = require('./routes')
 
@@ -83,6 +86,8 @@ the closure then resolves the method/user_type to invoke the matching function i
 const routeResolver = ( (path, routesJSON) => {
     return function(req, res, next) {
 
+        console.log(sessionKeys)
+
 
         console.log("header key",req.headers.key);
 
@@ -101,18 +106,19 @@ const routeResolver = ( (path, routesJSON) => {
 
         const invokedObj = getRootObject(path, routesJSON)
 
-        console.log("///the object that we are invoking [req.method][user_type] ", invokedObj)
+        ////////console.log("///the object that we are invoking [req.method][user_type] ", invokedObj)
 
         //validate user type in acl here
 
         //turns the path, method, user_type into strings that dereference the JSON object on the endpoint function
         //the 'path' string must resolve to the object with the method
         try{
-            //routes.JSON[path][req.method][user_type](req, res, next)
             invokedObj[req.method][user_type](req, res, next)
         }
         catch(err){
-            console.error("error in resolver() function. path: ", path, " session: ", _session,  err)
+            console.error("error in routeResolver()")
+            console.error(`no callable function found in routes for ${path}:${req.method}{${user_type}}`)
+            console.error(`path:${path} method: ${req.method} session: ${_method} err: ${err}`)
             res.status(500).send('Internal Server Error');
         }
     }

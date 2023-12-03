@@ -10,12 +10,8 @@ const getNoAuth = () => {
             type: NO_AUTH_USER_TYPE
 }}}
 
-const getAuth = (key, type) => {
-    return {
-        auth:{
-            u_id: key, 
-            type: type 
-}}}
+const getAuth = (key, type) => ({ auth:{u_id: key, type: type}})
+
 
 const startSession = (key, type) => {
 

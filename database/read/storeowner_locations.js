@@ -6,35 +6,37 @@ module.exports = async function fetchStoreOwnerLocations(storeowner_id) {
     return new Promise( (resolve, reject) => {
 
         db.connect().then( ()=>{
-
-            //aggregate() is an alternative to using find(),
-            // more verbose and implicit, but can handle more complicated queries
-            //input to aggregate: an array of objects (pipelines), each object/pipeline contains keys (pipeline stages)
-            
             /*
-                    -> for each location l where owner_id = storeowner_id: 
-                        -> fetch all appointments a at location l
-                            -> fetch user u at appointment a
-                            -> show only name field
-                        
-                        -> show only id/date/start/end fields
-                        
-                        -> fetch all tags t at location l
-                            -> show only tag_name field
+            aggregate() is a method to expresss multiple operations,
+            /more verbose and implicit, but can handle more complicated queries
+            input to aggregate: an array of objects (pipelines), each object/pipeline contains keys (pipeline stages)
+
+            1. filter locations by storeowner_id
+            2. for each location, link appointments to that location by location.id == appointment.location
+            3. for each appointment: 
+                link the user to that appointment by user.id == appointment.user and get the user name
+                for each tag in appointment.tags[], link the id to an id in tags.id and get the tag_name
+            4. for each tag in location.tags[], link the id to an id in tags.id and get the tag_name
+            5. replace the service field for each object in serviceDurations with the tag_name
+            6. remove the _tags array from the return object
+
             */
             Location
             .aggregate([
             {$match: {owner: db.ObjectId(storeowner_id) }}, //filter by owners managed locations
             { 
-                $lookup: // this lookup operates on appointments documents. JOIN appointments with location, grouping each appointment with matching location
+                $lookup: // this lookup return an array of appointment documents where appointment.location === location._id 
                  {
                      from: "appointments",
                      localField: "_id",
                      foreignField: "location",
                      as: "appointments",
-                     pipeline:[                      
-                        {$lookup: {from: "users", localField: "user", foreignField: "_id", as: "user", pipeline:[{$project: {"name": 1}} ] },}, //join users with Appointments, fetching just the appointee name
-                        {$lookup: {from: "tags", localField: "tags", foreignField: "_id", as: "tags",  pipeline: [ {$project: {"tag_name": 1,"_id": 0 }},] },},  //for each Tag object in tags arr, replace the id with the tag_name
+                     pipeline:[ //operations for each returned appointment document from the join.. 
+                        //replace the user id field on each appointment with the name of that user             
+                        {$lookup: {from: "users", localField: "user", foreignField: "_id", as: "user", pipeline:[{$project: {"name": 1}} ] },}, 
+                        //replace each tag id in the tags array with the tag_name
+                        {$lookup: {from: "tags", localField: "tags", foreignField: "_id", as: "tags",  pipeline: [ {$project: {"tag_name": 1,"_id": 0 }},] },},  
+                        //show specific fields from the appointment
                         {$project: {"user": 1,"_id:": 1, "date": 1, "start": 1, "end": 1, "status": 1, "tags":1}} 
                     ],                   
                  },              
@@ -52,10 +54,13 @@ module.exports = async function fetchStoreOwnerLocations(storeowner_id) {
                  },
              },
 
-            //https://stackoverflow.com/questions/40992111/mongodb-join-data-inside-an-array-of-objects
-             //replacing the Tag id with the tag_name for "service" for each object inside serviceDuration
+             /*
+             https://stackoverflow.com/questions/40992111/mongodb-join-data-inside-an-array-of-objects
+                the aggregation to replace subdocument id's with that subdocuments data fields
+                the target is an array contaning objects with the id we want to replace
+             */
              {
-                $lookup: //first create a temp array called _tags
+                $lookup: //first create a temp array called _tags by joining Tags documents by _id with each service field on each object in the serviceDurations array
                  {
                      from: "tags",
                      localField: "serviceDurations.service",
@@ -70,7 +75,7 @@ module.exports = async function fetchStoreOwnerLocations(storeowner_id) {
                         $map:{
                             "input": "$serviceDurations", //source of array objects to replace
                             "in": {
-                                $mergeObjects:[ //for each object in serviceDurations
+                                $mergeObjects:[ //iterate objects in serviceDurations
                                     "$$this", //copy all the fields in the object
                                     {"service":{ //replace service field by matching id with id from _tags
                                         $arrayElemAt: ["$_tags",{ $indexOfArray: ["$_tags._id","$$this.service"] } ]

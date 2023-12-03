@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require('uuid');
+
 const deleteStoreOwnerLocation  = require('../../database/delete/delete_location_storeowner.js')
 const fetchStoreOwnerLocations  = require('../../database/read/storeowner_locations.js')
 
@@ -7,6 +7,15 @@ const editAppointment           = require('../../database/update/edit_appointmen
 
 const createLocation            = require('../../database/create/post_locations_storeowner.js')
 
+const editLocationWorkingDay = require('../../database/update/edit_location_workingplan.js')
+
+const addLocationBreak = require('../../database/create/location_break.js')
+
+const deleteLocationBreak = require('../../database/delete/location_break.js')
+
+const editLocationServiceDuration = require('../../database/update/location_serviceduration.js')
+
+/*
 const mockWorkingPlan = [
     {
         day: "Monday",
@@ -77,11 +86,21 @@ const mockServiceDurations = [
         duration: "30"
      }, 
 ]
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+*/
 
 const deleteLocation = (req, res) => {
+
+    const deleteStoreOwnerLocation_format = (db_result, loc_id) => {
+
+        if(!db_result){
+            return {}
+        }
+    
+        return {
+            id: loc_id
+        }                         
+    }
+    
 
     console.log("/delete location")
     
@@ -112,19 +131,6 @@ const deleteLocation = (req, res) => {
     
 }
 
-const deleteStoreOwnerLocation_format = (db_result, loc_id) => {
-
-    if(!db_result){
-        return {}
-    }
-
-    return {
-        id: loc_id
-    }                         
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-
 const fetchLocations = (req,res) => {
 
     const storeOwnerLocations_format = (db_result) => {
@@ -151,7 +157,7 @@ const fetchLocations = (req,res) => {
             return {...b}
         })
     
-        const formatServiceDurations= (sds) => sds.map(sd => ({duration: sd.duration, service: sd.service.tag_name}))
+        const formatServiceDurations= (sds) => sds.map(sd => ({duration: sd.duration, service: sd.service.tag_name, id: sd._id}))
     
         return { 
             posts: db_result.map( loc => {
@@ -209,11 +215,21 @@ const fetchLocations = (req,res) => {
     }); 
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////// editAppointmentStatus
-
 const updateAppointmentStatus = (req, res) => {
+
+    const updateAppointmentStatus_format = (db_result) => {
+
+        if(!db_result){
+            return {}
+        }
+    
+        return {                      
+            appointment:{
+                id: String(db_result._id),
+                status: db_result.status
+            }               
+        }      
+    }
 
     console.log("/patch appointment (storeowner)")
         
@@ -248,23 +264,27 @@ const updateAppointmentStatus = (req, res) => {
       
 }
 
-const updateAppointmentStatus_format = (db_result) => {
-
-    if(!db_result){
-        return {}
-    }
-
-    return {                      
-        appointment:{
-            id: String(db_result._id),
-            status: db_result.status
-        }               
-    }      
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-
 const editLocation = (req, res) => {
+
+    const editStoreOwnerLocation_format = (db_result) => {
+
+        if(!db_result){
+            return {}
+        }
+    
+        return {                      
+            location:{
+                id: String(db_result._id),
+                LatLng: {
+                    lat: db_result.lat,
+                    lng: db_result.lng
+                },
+                address: db_result.address,
+                info:    db_result.info,
+                icons:   db_result.tags,
+            }               
+        }      
+    }
 
     console.log("/patch location")
         
@@ -296,28 +316,30 @@ const editLocation = (req, res) => {
       });
 }
 
-const editStoreOwnerLocation_format = (db_result) => {
-
-    if(!db_result){
-        return {}
-    }
-
-    return {                      
-        location:{
-            id: String(db_result._id),
-            LatLng: {
-                lat: db_result.lat,
-                lng: db_result.lng
-            },
-            address: db_result.address,
-            info:    db_result.info,
-            icons:   db_result.tags,
-        }               
-    }      
-}
-
 const addLocation = (req, res) => {
 
+    const createLocation_format = (db_result) => {
+
+        if(!db_result){
+            return {}
+        }
+    
+        return {                      
+            location:{
+                id: String(db_result._id),
+                LatLng: {
+                    lat: db_result.lat,
+                    lng: db_result.lng
+                },
+                address: db_result.address,
+                info:    db_result.info,
+                icons:   db_result.tags,
+                appointments: []
+            }               
+        }   
+          
+    }
+    
     console.log("/post location")
         
     console.log("req body",req.body)
@@ -355,27 +377,105 @@ const addLocation = (req, res) => {
 
 }
 
-const createLocation_format = (db_result) => {
+const updateWorkingPlan = (req, res)=>{
+    console.log("/////////updateworkingPlan",req.body)
 
-    if(!db_result){
-        return {}
+    const u_id = res.locals.session.auth.u_id
+
+    if(!u_id){
+        console.error("res.locals.u_id is undefined")
+        res.status(500).send('Internal Server Error');
     }
 
-    return {                      
-        location:{
-            id: String(db_result._id),
-            LatLng: {
-                lat: db_result.lat,
-                lng: db_result.lng
-            },
-            address: db_result.address,
-            info:    db_result.info,
-            icons:   db_result.tags,
-            appointments: []
-        }               
-    }   
-      
+    const { wp_id, start, end } = req.body
+
+    editLocationWorkingDay(wp_id, start, end).then(function(raw_db_result){
+  
+          console.log("editLocation RESULT: ", raw_db_result)
+  
+          res.setHeader('Content-Type', 'application/json');
+          //res.send( JSON.stringify({...req.body}) );
+          res.send( JSON.stringify({...raw_db_result}) );
+  
+      }).catch( (err)=>{
+  
+          console.log("err from database")
+          console.error(err)
+          res.status(500).send('Internal Server Error');
+  
+      });
+
+    
 }
+
+const addNewBreak = (req, res)=>{
+
+    const formatResponseBody = ({_id, start, end, days}) => ({ break_id: _id, start, end, days}) 
+    
+    console.log("/////////addNewBreak",req.body)
+
+    const { days, start, end, location_id } = req.body
+
+    addLocationBreak(days, start, end, location_id).then(function(raw_db_result){
+        //console.log("addLocationBreak RESULT: ", raw_db_result)
+        res.setHeader('Content-Type', 'application/json');
+        console.log("formated: ",formatResponseBody(raw_db_result))
+        res.send( JSON.stringify(formatResponseBody(raw_db_result)));
+    }).catch( (err)=>{
+        console.log("err from database")
+        console.error(err)
+        res.status(500).send('Internal Server Error');
+    }); 
+}
+
+const deleteBreak = (req, res)=>{
+
+    const formatResponseBody = (raw_db_result) => ({ break_id: raw_db_result}) 
+
+    console.log("/////////deleteBreak",req.body)
+
+    const { break_id, location_id } = req.body
+
+    deleteLocationBreak(location_id, break_id).then(function(raw_db_result){
+        console.log("deleteLocationBreak RESULT: ", raw_db_result)
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(formatResponseBody(raw_db_result)));
+    }).catch( (err)=>{
+        console.log("err from database")
+        console.error(err)
+        res.status(500).send('Internal Server Error');
+    }); 
+
+}
+
+const updateServiceDuration = (req, res)=>{
+
+    const formatResponseBody = ({sd_id, duration}) => ({ sd_id, new_duration: duration}) 
+
+    const { sd_id, new_duration } = req.body
+
+    console.log("/////////updateServiceDuration",req.body)
+
+    editLocationServiceDuration(sd_id, new_duration).then(function(raw_db_result){
+        console.log("editLocationServiceDuration RESULT: ", raw_db_result)
+        res.setHeader('Content-Type', 'application/json');
+
+        console.log("editLocationServiceDuration format RESULT: ", formatResponseBody(raw_db_result))
+
+        res.send(JSON.stringify(formatResponseBody(raw_db_result)));
+
+    }).catch( (err)=>{
+        console.log("err from database")
+        console.error(err)
+        res.status(500).send('Internal Server Error');
+    }); 
+
+}
+
+
+
+/*
+
 
 const fetchWorkingPlans = (req, res)=>{
     console.log(res.locals.session)
@@ -392,7 +492,9 @@ const fetchServiceDurations = (req, res)=>{
     console.log(res.locals.session)
     res.send( JSON.stringify({ serviceDurations: [...mockServiceDurations ]}) );
 }
+*/
 
+// fetchWorkingPlans, fetchBreaks, fetchServiceDurations, 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-module.exports = { deleteLocation, fetchLocations, updateAppointmentStatus, editLocation, addLocation, fetchWorkingPlans, fetchBreaks, fetchServiceDurations}
+module.exports = { deleteLocation, fetchLocations, updateAppointmentStatus, editLocation, addLocation, updateWorkingPlan, addNewBreak, deleteBreak, updateServiceDuration}

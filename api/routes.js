@@ -56,27 +56,30 @@ const JSON = {
         
         workingplans: {
 
-            GET: { STOREOWNER:storeowner.fetchWorkingPlans }, 
-            PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH workingplan")} },
+            //GET: { STOREOWNER:storeowner.fetchWorkingPlans }, 
+            PATCH:  { STOREOWNER: storeowner.updateWorkingPlan},
         },
 
         breaks: {
 
-            GET: { STOREOWNER: storeowner.fetchBreaks },
-            DELETE: { STOREOWNER: (req, res)=>{console.log("DELETE breaks")} },
-            PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH breaks")} },
+           // GET: { STOREOWNER: storeowner.fetchBreaks },
+            DELETE: { STOREOWNER:  storeowner.deleteBreak },
+            POST:  { STOREOWNER: storeowner.addNewBreak },
         },
 
         servicedurations: {
             
-            GET: { STOREOWNER: storeowner.fetchServiceDurations },
-            PATCH:  { STOREOWNER: (req, res)=>{console.log("PATCH servicedurations")} },
+            //GET: { STOREOWNER: storeowner.fetchServiceDurations },
+            PATCH:  { STOREOWNER: storeowner.updateServiceDuration },
         }    
     },
 
 
 }
 
+/*
+
+addNewBreak, deleteBreak, updateServiceDuration
 const testJSON = {
     availability:{
         
@@ -85,8 +88,8 @@ const testJSON = {
         
         
         workingplans: {
-            GET: { STOREOWNER:storeowner.fetchWorkingPlans },
-            PATCH:  { STOREOWNER: ()=>{console.log()} },
+           // GET: { STOREOWNER: storeowner.fetchWorkingPlans },
+            PATCH:  { STOREOWNER: storeowner.updateWorkingPlan },
         },
 
         breaks: {
@@ -101,8 +104,8 @@ const testJSON = {
         }    
     } 
 }
-
-module.exports = { JSON, testJSON }
+*/
+module.exports = { JSON,  }
 
 
 

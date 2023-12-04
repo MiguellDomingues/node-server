@@ -1,9 +1,6 @@
-
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { Schema, model, models } = require('mongoose');
 
 const { STATUS , AUTH_USER_TYPES, DAY_NAMES, DAY_ABBREVIATIONS } = require('../utils/constants.js');
-
 
 
 /*
@@ -13,7 +10,7 @@ const { STATUS , AUTH_USER_TYPES, DAY_NAMES, DAY_ABBREVIATIONS } = require('../u
 - canceled -> none
 */
 
-const appointmentSchema = new mongoose.Schema({
+const appointmentSchema = new Schema({
     date:  String,
     start: String,
     end:   String,
@@ -28,7 +25,7 @@ const appointmentSchema = new mongoose.Schema({
     tags: [{  type: Schema.Types.ObjectId, ref: 'Tag' }]
   });
 
-  const workingDaySchema = new mongoose.Schema({
+  const workingDaySchema = new Schema({
     start: String,
     end:   String,
     day: { 
@@ -37,7 +34,29 @@ const appointmentSchema = new mongoose.Schema({
     },
   });
 
-  const breakSchema = new mongoose.Schema({
+/*
+
+workingPlan:       {
+      type : [ workingDaySchema ],
+      validate: dateValidator
+    },
+
+  function dateValidator (value) {
+    console.log("testing validator: start: ", value.start, " end: ", value.end, " value ", value)
+    return true
+}
+
+  workingDaySchema.pre('validate', function (next) {
+    
+    console.log("testing validator: start: ", this.start, " end: ", this.end)
+    //if (this.startDate > this.endDate) {
+    //  this.invalidate('startDate', 'Start date must be less than end date.', this.startDate);
+   // }
+  
+    next();
+  });*/
+
+  const breakSchema = new Schema({
     start: String,
     end:   String,
     days: [{ 
@@ -46,12 +65,12 @@ const appointmentSchema = new mongoose.Schema({
     }],
   });
 
-  const serviceDurationSchema = new mongoose.Schema({
+  const serviceDurationSchema = new Schema({
     duration: Number,
     service: {  type: Schema.Types.ObjectId, ref: 'Tag' }
   });
 
-  const locationSchema = new mongoose.Schema({
+  const locationSchema = new Schema({
     address:  String,
     lat:      Number,
     lng:      Number,
@@ -63,7 +82,7 @@ const appointmentSchema = new mongoose.Schema({
     phone: String,
     email: String,
     title: String,
-    workingPlan:      [workingDaySchema],
+    workingPlan:      [workingDaySchema], 
     breaks:           [breakSchema],
     serviceDurations: [serviceDurationSchema],
     //user/appointment fk's
@@ -71,7 +90,9 @@ const appointmentSchema = new mongoose.Schema({
     tags: [{  type: Schema.Types.ObjectId, ref: 'Tag' }]
   });
 
-  const userSchema = new mongoose.Schema({
+ 
+
+  const userSchema = new Schema({
     path:         String,
     name:         String,
     type:        { type: String, enum: Object.values(AUTH_USER_TYPES), required : true },
@@ -79,22 +100,22 @@ const appointmentSchema = new mongoose.Schema({
     password:    { type : String , required : true}
   });
 
-  const tagTypeSchema = new mongoose.Schema({
+  const tagTypeSchema = new Schema({
     tag_type_name:  String,
 });
 
-const tagSchema = new mongoose.Schema({
+const tagSchema = new Schema({
     tag_name:  String,
     tag_type: {  type: Schema.Types.ObjectId, ref: 'TagType' },
 });
 
 module.exports = {
-  TagType:          mongoose.models.TagType         || mongoose.model('TagType',         tagTypeSchema),
-  Tag:              mongoose.models.Tag             || mongoose.model('Tag',             tagSchema),
-  User:             mongoose.models.User            || mongoose.model('User',            userSchema),
-  Location:         mongoose.models.Location        || mongoose.model('Location',        locationSchema),
-  Appointment:      mongoose.models.Appointment     || mongoose.model('Appointment',     appointmentSchema),
-  WorkingDay:       mongoose.models.WorkingDay      || mongoose.model('WorkingDay',      workingDaySchema),
-  Break:            mongoose.models.Break           || mongoose.model('Break',           breakSchema),
-  ServiceDuration:  mongoose.models.ServiceDuration || mongoose.model('ServiceDuration', serviceDurationSchema),
+  TagType:          models.TagType         || model('TagType',         tagTypeSchema),
+  Tag:              models.Tag             || model('Tag',             tagSchema),
+  User:             models.User            || model('User',            userSchema),
+  Location:         models.Location        || model('Location',        locationSchema),
+  Appointment:      models.Appointment     || model('Appointment',     appointmentSchema),
+  WorkingDay:       models.WorkingDay      || model('WorkingDay',      workingDaySchema),
+  Break:            models.Break           || model('Break',           breakSchema),
+  ServiceDuration:  models.ServiceDuration || model('ServiceDuration', serviceDurationSchema),
 }

@@ -57,7 +57,7 @@ const defaultWorkingPlan = [
     },
     {
         day: "Wednesday",
-        start: "0",
+        start: "",
         end:   "",
     },
     {

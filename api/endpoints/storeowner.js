@@ -271,7 +271,7 @@ const editLocation = (req, res) => {
         if(!db_result){
             return {}
         }
-    
+
         return {                      
             location:{
                 id: String(db_result._id),
@@ -279,9 +279,16 @@ const editLocation = (req, res) => {
                     lat: db_result.lat,
                     lng: db_result.lng
                 },
-                address: db_result.address,
-                info:    db_result.info,
-                icons:   db_result.tags,
+                address:     db_result.address,
+                info:        db_result.info,
+                icons:       db_result.tags,
+                city:        db_result.city,
+                country:     db_result.country,
+                email:       db_result.email,
+                phone:       db_result.phone,
+                postal_code: db_result.postal_code,
+                province:    db_result.province,
+                title:       db_result.title
             }               
         }      
     }

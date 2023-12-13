@@ -9,6 +9,8 @@ const delete_db                   = require('./database/delete_db.js')
 
 const init                        = require('./api/init.js')
 
+const { fetchWeekSchedule } = require('./api/endpoints/storeowner.js')
+
 app.use( cors() );          // allow react app communicate with server on same machine/diff port
 app.use( express.json() );  // this is needed to access req.body in 'post' methods
 const { PORT } = require('./utils/constants.js');
@@ -31,16 +33,4 @@ function(req,res){
 
 init(app, router)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+fetchWeekSchedule({body:{}}, {})

@@ -2,22 +2,33 @@ const { Location } = require('../models.js');
 let db = require('../database.js')
 
 
-module.exports = async function fetchLocationAvailability() {   
+module.exports = async function fetchLocationAvailability(location_id, service_id) {   
 
     return new Promise( (resolve, reject) => {
 
-        setTimeout(() => {
-            resolve({
-                working_plan: working_plan,
-                breaks: breaks,
-                time_slots: time_slots,
-            })
-        }, 1000);
-   
+        db.connect().then( ()=>{
+
+            Location.
+            findOne({"_id": location_id},'workingPlan breaks serviceDurations').lean()
+                .then( (result) => { 
+                    if(!result) throw new Error(`location_id ${location_id} not found`)
+                    const duration = result.serviceDurations.find(sd=>sd._id.toString() === service_id)?.duration
+                    if(!duration) throw new Error(`service_id ${service_id} not found`)
+                    resolve({
+                        working_plan: result.workingPlan,
+                        breaks: result.breaks,
+                        time_slots: time_slots,
+                        duration: duration 
+                    })
+                })
+                .catch( (err) =>  { reject(new Error("Query Error", { cause: err })) } )
+                .finally( ()=> { db.disconnect()} )
+
+        }).catch( (err)=> { reject(new Error("Database connection Error", { cause: err }) ) });
     })
  }
 
- //const DAY_NAMES = ['Monday','Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
 const working_plan = [
 {
     day: "Mon",
@@ -54,8 +65,6 @@ const working_plan = [
 }
 ]
 
-
-//break intervals CAN NOT overlap
 const breaks = [
 {
     days: ["Mon","Tue","Wed","Thu"],
@@ -94,21 +103,3 @@ time_slots: [
 }
 
 ]
-
- /*
- module.exports = async function fetchLocationsGuest(key) {   
-
-    return new Promise( (resolve, reject) => {
-
-        db.connect().then( ()=>{
-            Location.
-            find({})
-            .populate('tags')
-                .then( (locations) => { resolve(locations)} )
-                .catch( (err) =>  { reject(new Error("Query Error", { cause: err })) } )
-                .finally( ()=> { db.disconnect()} )
-
-        }).catch( (err)=> { reject(new Error("Database connection Error", { cause: err }) ) });
-    })
- }
- */

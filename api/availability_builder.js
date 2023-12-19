@@ -43,12 +43,14 @@ class Interval {
 }
 
 /*
-
-input:  arr of Intervals in the form {start: int, end: int}
-return: a sorted copy of the array (toSorted)
+input:  arr of interval objects that may or may not overlap
+return: the arr sorted by earliest start and if the starts overlap, the earliest ends
 */
 function sortIntervals(intervals = []){
-  return intervals.toSorted((interval1,interval2)=>interval1.start - interval2.start)
+  return intervals.toSorted((interval1,interval2)=>
+  interval1.start !== interval2.start ? interval1.start - interval2.start 
+  : interval1.end - interval2.end
+  )
 }
   
 /*
@@ -61,8 +63,6 @@ function hourMinutesStringtoTotalMinutes(timeString){
 
   return parseInt(timeString.split(":")[0])*60 + parseInt(timeString.split(":")[1])
 } 
-
-
 
 /*
 find the available appointment slots for each time slot
@@ -77,26 +77,51 @@ constaints:
   time_slots[time_slots.length-1].end >= open_intervals[open_intervals.length-1].end
 
 return: 
-  an array with 0-n integers, each index representing availability for the matching index for time_slots
+  an array of time_slots length, each containing an array with 0-n integers, each index representing a time where an apt may be booked
 
 */
 function getTimeSlotAvailabilities(open_intervals, service_duration, time_slot_intervals){
 
+  //console.log("*****************START*********************")
   open_intervals = open_intervals ?? [];
   time_slot_intervals = time_slot_intervals ?? [];
+  service_duration = service_duration ?? 0
 
-  //assert.equal(time_slot_intervals && time_slot_intervals.length > 0, true, "time slots cant be empty");
   assert.equal(service_duration > 0, true, "service_duration must be greater then 0");
-  
+  assert.equal(service_duration <= time_slot_intervals[0].duration, true, "service_duration can not exceed the duration of a time slot");
+ 
   open_intervals = open_intervals.filter((interval)=> interval.duration >= service_duration) //remove open intervals that are shoter than the service_duration
   
   if(open_intervals.length === 0){ //if there are no open intervals, just return an array of 0's 
-    return new Array(time_slot_intervals.length).fill(0)
+    return new Array(time_slot_intervals.length).fill([])
   }
+
+  
 //validate timeslots by converting to open intervals and checking for open intervals; should be empty
   const time_slot_availabilities = []
   
-  const getAvailabilitySlots = (minutes) => Math.trunc( minutes/service_duration)
+  //const getAvailabilitySlots = (minutes) => Math.trunc( minutes/service_duration)
+
+  const getAvailabilitySlots = (interval_start, interval_end) => {
+
+    //console.log("gas start:  ", interval_start, " end:", interval_end)
+    //console.log("datatypes:  ", typeof interval_start, " ", typeof interval_end)
+
+    const slots = []
+
+    while(interval_start + service_duration <= interval_end)
+    {
+     // console.log("loop s:  ", interval_start)
+      slots.push( interval_start )
+      interval_start+=service_duration 
+     // console.log("loop e:  ", interval_start)   
+    }
+   
+    
+    
+   // console.log("gas end:  ", slots)
+    return slots
+  }
 
   let open_intervals_index = 0;
   let overflow = 0;
@@ -108,7 +133,7 @@ function getTimeSlotAvailabilities(open_intervals, service_duration, time_slot_i
   
     //console.log("bucket: ", time_slot, "///////////////////////")
 
-    let bucket_total = 0
+    let bucket_total = []
 
     if(overflow > 0){ //any intervals that overran the last buckets end time will have the difference place in this bucket
      // console.log("overflow ", overflow)
@@ -116,10 +141,11 @@ function getTimeSlotAvailabilities(open_intervals, service_duration, time_slot_i
 
       //?? do i need to add extra time for service durations in case of overflows that overrun bucket capacity?
     //  console.log("overflow for this bucket", overflow_for_this_bucket)
+      bucket_total = getAvailabilitySlots (  time_slot.start, time_slot.start + overflow_for_this_bucket ) 
 
-      bucket_total = getAvailabilitySlots ( overflow_for_this_bucket ) //get the availability from the overflow
+     // bucket_total = getAvailabilitySlots ( overflow_for_this_bucket ) //get the availability from the overflow
       overflow = overflow - overflow_for_this_bucket //and decrement the overflow
-    //  console.log("added overflow to total ", bucket_total)
+     // console.log("added overflow to total ", bucket_total)
     }
 
     //if there is still overflow after the above op, it means an open interval extends past this bucket boundary and the bucket is filled. go to the next bucket
@@ -146,24 +172,24 @@ function getTimeSlotAvailabilities(open_intervals, service_duration, time_slot_i
        // console.log("***the open interval overflows the bucket")
         const non_overflow =  time_slot_end - open_interval_start // find the section of the interval that lies within this bucket
         overflow = open_interval_end - time_slot_end // find the section of the interval that lies outside this bucket
-        
+      //  console.log("***overflow: ", overflow, " non-overflow: ", non_overflow) 
         //if the part of the interval overflowing into next bucket is too small to fit an apt..
         // AND the part of the interval within this bucket is too small to fit an apt..
         if(overflow < service_duration && non_overflow < service_duration){ 
           //still allow the user to book into THIS bucket (because we have enough time on this interval)
           //otherwise user would be denied booking, even though this interval has time
-          bucket_total = bucket_total + getAvailabilitySlots ( service_duration )
+          bucket_total = bucket_total.concat( getAvailabilitySlots (open_interval_start, open_interval_start + service_duration ) )
         }else{
           //if the overflow exeeds service duration (book within next bucket)
           //or the non-overflow is large enough to fit at least one apt into this bucket
-          bucket_total = bucket_total + getAvailabilitySlots ( non_overflow ) //should always be >= 1
+          bucket_total = bucket_total.concat( getAvailabilitySlots ( open_interval_start, non_overflow + open_interval_start ) )//should always be >= 1
         }
 
-       // console.log("***overflow: ", overflow, " non-overflow: ", non_overflow) //"reserve: ", reserv
+       // console.log("***overflow: ", overflow, " non-overflow: ", non_overflow) 
 
       }else{ //interval is 100% inside this bucket
-      //  console.log("***this interval fits within the bucket")
-        bucket_total = bucket_total + getAvailabilitySlots ( open_interval_end - open_interval_start )//otherwise put the open interval into this bucket and check the next one
+       // console.log("***this interval fits within the bucket: s", open_interval_start, "e: ",open_interval_end)// - open_interval_start
+        bucket_total = bucket_total.concat( getAvailabilitySlots (open_interval_start, open_interval_end ) )//otherwise put the open interval into this bucket and check the next one
        // console.log("total", bucket_total)
       }
 
@@ -178,7 +204,6 @@ function getTimeSlotAvailabilities(open_intervals, service_duration, time_slot_i
 
   return time_slot_availabilities
 }
-  
   
 /*
 find the availability percentages for each time slot
@@ -227,7 +252,6 @@ function getTimeSlotAvailabilityPercentages(total_availabilities = [], adjusted_
 
 }
   
-
 /*
 find the open times between the open/close time and an array of close intervals
 
@@ -236,11 +260,10 @@ input:
   min_max_interval: represents the open time->close time of a store
 
 constraints: 
-
   open_time <= intervals[0].start
-  min_max_interval.end >= intervals[intervals.length-1].end, 
-  intervals[i].end < intervals[i+1].end (no overlapping intervals)
-
+  min_max_interval.end >= intervals[intervals.length-1].end
+  (input intervals become sorted with overlaps merged) 
+  
 returns: 
   1 or more open intervals (open/close time counts as an interval)
 
@@ -248,42 +271,38 @@ runtime: 0(nlogn + n)
 */
 function getOpenIntervals(intervals = [], min_max_interval){
 
+  //add an open interval that has > 0 difference between the start/end time
+  function addOpenInterval(start, end){
+
+      const interval = new Interval(start, end)
+      
+      if(interval?.duration > 0){
+        open_intervals.push(interval)
+      }  
+  }
+
+  intervals = intervals ?? []
+
   const open_intervals = [] //store the open intervals between open_time->interval[0].start, (interval[i].end->interval[i+1].start) ... interval[n].end -> end_open
 
   if(!min_max_interval){
     return open_intervals
   }
 
-  //add an open interval that has > 0 difference between the start/end time
-  function addOpenInterval(start, end){
-
-    //if there is exclusive overlap in any break/apt intervals, the assert will trigger
-      const interval = new Interval(start, end) 
-      //i may change this to try/catch and if theres overlap, just ignore it without adding new interval
-
-      if(interval.duration > 0){
-        open_intervals.push(interval)
-      }  
-  }
-
-  if(!intervals || intervals.length === 0){ //if there are no breaks or appointments, the open/close time is the only open interval
+  if(intervals.length === 0){ //if there are no breaks or appointments, the open/close time is the only open interval
       addOpenInterval(min_max_interval.start, min_max_interval.end)
       return open_intervals;
   }
 
-  const copied_sorted_intervals = sortIntervals( intervals ) //sort/copy the input arr
+  const merged_sorted_intervals = mergeIntervals( intervals ) //sort/merge the input arr
 
-  addOpenInterval(min_max_interval.start, copied_sorted_intervals[0].start) //add the open time->first close interval
+  addOpenInterval(min_max_interval.start, merged_sorted_intervals[0].start) //add the open time->first close interval
 
-  let i = 1;
   //if there are more then 1 closed interval, get the times between intervals
-  while(i < copied_sorted_intervals.length){ 
-      addOpenInterval(copied_sorted_intervals[i-1].end, copied_sorted_intervals[i].start)
-      i++;
-  }
+  for(let i = 1; i < merged_sorted_intervals.length; i++)
+    addOpenInterval(merged_sorted_intervals[i-1].end, merged_sorted_intervals[i].start)
 
-  //console.log(copied_sorted_intervals[copied_sorted_intervals.length-1].end, min_max_interval.end)
-  addOpenInterval(copied_sorted_intervals[copied_sorted_intervals.length-1].end, min_max_interval.end) //add the last time -> close time interval
+  addOpenInterval(merged_sorted_intervals[merged_sorted_intervals.length-1].end, min_max_interval.end) //add the last time -> close time interval
 
   return  open_intervals
 }
@@ -296,95 +315,178 @@ this should return an empty arr for getOpenIntervals()
 */
 function areTimeSlotsValid(time_slot_intervals, min_max_interval){
 
-return(
-  time_slot_intervals 
-  && //validate non-null/non-enpty arr
-  time_slot_intervals.length > 0 
-  &&  //validate store open/close = first/last times in time slots
-  time_slot_intervals[0].start === min_max_interval.start 
-  &&
-  time_slot_intervals[time_slot_intervals.length-1].end === min_max_interval.end 
-  && //validate no open gaps between time slot intervals
-  getOpenIntervals(time_slot_intervals, min_max_interval).length === 0
-)
-
+  return(
+    time_slot_intervals 
+    && //validate non-null/non-enpty arr
+    time_slot_intervals.length > 0 
+    &&  //validate store open time = first start time
+    time_slot_intervals[0].start === min_max_interval.start 
+    && //validate store close time = last end time
+    time_slot_intervals[time_slot_intervals.length-1].end === min_max_interval.end 
+    && //check in between intervals for i1.end == 12.start
+    (() => { 
+      for(let i = 1; i < time_slot_intervals.length; i++)
+        if (time_slot_intervals[i-1].end !== time_slot_intervals[i].start) return false 
+      return true
+    })())
 }
-
-//const toSortedIntervals = (time_objs) => sortIntervals( time_objs.map(({start, end})=>new Interval(start, end)) )
-
-const toIntervals = (time_objs) => time_objs.map(({start, end})=>new Interval(start, end)) 
-
-//const puts = (...any) => console.log(...any.map(String));
-  
-function getAvailability(breaks, appointments, time_slots, start_time, end_time, requested_service_duration){
-
-    //convert and validate inputs
-    const time_slot_intervals = sortIntervals( toIntervals(time_slots) )
-    const store_open_to_close = new Interval(start_time, end_time)
-
-    assert.equal(areTimeSlotsValid(time_slot_intervals, store_open_to_close), true, 
-      "time slots must be an arr of intervals (s1, e1)(s2, e2)...(sn, en) where s1 = store open time and en = store close time");
-    
-    const break_intervals =       toIntervals(breaks)
-    const appointment_intervals = toIntervals(appointments)
-    
-    //first get the slots with only the breaks to find the max slots
-    const time_between_breaks =        getOpenIntervals(break_intervals, store_open_to_close);
-
-    // ..then get the total availabilities for each time slot
-    const total_availability =         getTimeSlotAvailabilities(time_between_breaks, requested_service_duration, time_slot_intervals);
-
-    //..then merge the break slots with the confirmed, requested appointments for today to get the adjusted number of slots
-    const time_between_appointments =  getOpenIntervals(break_intervals.concat(appointment_intervals),  store_open_to_close);
-
-    //..then get the adjusted availabilities with both breaks and appointments
-    const adjusted_availabilities =    getTimeSlotAvailabilities(time_between_appointments, requested_service_duration, time_slot_intervals);
-
-    // compare/validate total w/ adjusted to get the availability percentages for each time slot
-    const availability_percentages =   getTimeSlotAvailabilityPercentages(total_availability, adjusted_availabilities);
-
-    return availability_percentages;
-    //return null;
-
-    /*
-    return getTimeSlotAvailabilityPercentages(
-      getTimeSlotAvailabilities(
-          getOpenIntervals(break_intervals,store_open_to_close), 
-            requested_service_duration, 
-              time_slot_intervals
-          ),
-        getTimeSlotAvailabilities(
-          getOpenIntervals(break_intervals.concat(appointment_intervals), store_open_to_close), 
-            requested_service_duration, 
-              time_slot_intervals)
-    )
-    */
-}
-
-
-module.exports = { 
-    getAvailability, 
-    getTimeSlotAvailabilityPercentages,
-    sortIntervals, 
-    getOpenIntervals, 
-    getTimeSlotAvailabilities,
-    hourMinutesStringtoTotalMinutes,
-    sortIntervals,
-    Interval,
-    //toSortedIntervals,
-    areTimeSlotsValid,
-    MAX_MINUTES_IN_DAY
-  }
-  
 
 /*
+merge 0-n overlapping Interval objects. overlap is when the start or end values of 
+one interval are within the start/end values of another interval, including boundaries
+
+inputs:
+  intervals: 0-n of Interval objects                  
+  
+returns: 
+  an array of new Intervals sorted in ascending order and overlaps merged (i1.end < i2.start)
+
+runtime: nlogn+n
+*/
+function mergeIntervals(intervals){
+
+  intervals = intervals ?? []
+
+  if(intervals.length == 0 ) return []
+
+  intervals = sortIntervals(intervals)
+
+  const merged_intervals = []
+
+  let p1 = 0;
+  while(p1 < intervals.length){ 
+
+      const outer_interval = intervals[p1]
+
+      let maximum_end = outer_interval.end
+      const start = outer_interval.start
+
+      let p2 = p1+1 
+      while(p2 < intervals.length){ //check the intervals after the outer interval for overlaps
+        const inner_interval = intervals[p2]
+
+        if(inner_interval.start > maximum_end){  //..if the inner intervals start is greater than the current max end value
+          break; //it means it falls outside of the previous overlapping intervals
+        }else{   //..otherwise the current inner interval is overlapping..
+          maximum_end = Math.max(maximum_end, inner_interval.end)  // check if it's end point is greater then any previous end points
+          p2++;  // and check the next inner interval
+        } 
+      }
+      //when we 1) found a non-overlapping interval OR have done processing the input in the inner loop, add a single interval that merges all the overlaps
+      merged_intervals.push(new Interval(start, maximum_end)) 
+     
+      p1 = p2 //update the outer pointer so its pointing back to the last interval processed by inner loop
+  }
+
+  return merged_intervals
+}
+
+//wrap an arr of {start: ##:## end: ##:##} objects into intervals
+const toIntervals = (time_objs) => time_objs.map(({start, end})=>new Interval(start, end)) 
+
+/*
+finds the availability % for each time slot object in time_slots
+
+inputs:
+  breaks:           arr of objects {start: "##:##", end: "##:##"}                    
+  appointments:     arr of objects {start: "##:##", end: "##:##"} 
+  time_slots:       arr of objects {start: "##:##", end: "##:##"}
+  start_time:       a time in the form "##:##"
+  end_time:         a time in the form "##:##"
+  service_duration: a time in minutes
+
+constraints:
+  "##:##" is a string representing a time in the day in 24 hr format
+  time_slots is an arr
+  start_time >= end_time
+  service_duration > 0
+  service_duration <= time_slots[n]
+
+returns: 
+  an arr of the original time slot objects, sorted, with each time slot object appended with:
+  open_times: arr of 0-n ascending ints representing a time that may be booked for appointment
+  availability: an int 0-100 representing how much appointment capacity is on the time_slot
+*/
+function getAvailability(breaks, appointments, time_slots, start_time, end_time, service_duration){
+
+  const getArrLength = (arr) => arr ? arr.length : 0
+
+  //convert and validate inputs
+  const sorted_time_slots = sortIntervals( time_slots )
+  const time_slot_intervals = toIntervals(sorted_time_slots)
+  const store_open_to_close = new Interval(start_time, end_time)
+
+  assert.equal(areTimeSlotsValid(time_slot_intervals, store_open_to_close), true, 
+    "time slots must be an arr of intervals (s1, e1)(s2, e2)...(sn, en) where s1 = store open time and en = store close time");
+  
+  const break_intervals =       toIntervals(breaks)
+  const appointment_intervals = toIntervals(appointments)
+  
+  //first get the slots with only the breaks to find the max slots
+  const time_between_breaks =        getOpenIntervals(break_intervals, store_open_to_close);
+
+  console.log(" time_between_breaks",time_between_breaks)
+  // ..then get the total availabilities for each time slot
+  const total_availability =         getTimeSlotAvailabilities(time_between_breaks, service_duration, time_slot_intervals);
+
+  console.log(" total_availability", total_availability)
+
+  
+  //..then merge the break slots with the confirmed, requested appointments for today to get the adjusted number of slots
+  const time_between_appointments =  getOpenIntervals(break_intervals.concat(appointment_intervals),  store_open_to_close);
+
+  console.log(" time_between_appointments",time_between_appointments)
+  //..then get the adjusted availabilities with both breaks and appointments
+  const adjusted_availabilities =    getTimeSlotAvailabilities(time_between_appointments, service_duration, time_slot_intervals);
+
+  console.log(" adjusted_availabilities",adjusted_availabilities)
+  // compare/validate total w/ adjusted to get the availability percentages for each time slot
+
+  const availability_percentages =  getTimeSlotAvailabilityPercentages(total_availability.map(getArrLength), adjusted_availabilities.map(getArrLength));
+
+  console.log(" availability_percentages",availability_percentages)
+
+  const return_object = sorted_time_slots.map((ts,i)=>({...ts, open_times: adjusted_availabilities[i], availability: availability_percentages[i]}))
+
+  console.log(" return_object",return_object)
+
+  return return_object
+  //return null;
+
+  /*
+  return getTimeSlotAvailabilityPercentages(
+    getTimeSlotAvailabilities(
+        getOpenIntervals(break_intervals,store_open_to_close), 
+          requested_service_duration, 
+            time_slot_intervals
+        ),
+      getTimeSlotAvailabilities(
+        getOpenIntervals(break_intervals.concat(appointment_intervals), store_open_to_close), 
+          requested_service_duration, 
+            time_slot_intervals)
+  )
+  */
+}
+
+module.exports = { 
+    getTimeSlotAvailabilityPercentages,
+    sortIntervals, 
+    getTimeSlotAvailabilities,
+    getOpenIntervals,
+    hourMinutesStringtoTotalMinutes,
+    getAvailability,
+    Interval,
+    mergeIntervals,
+    areTimeSlotsValid,
+    MAX_MINUTES_IN_DAY
+}
 
 
 
+//const puts = (...any) => console.log(...any.map(String));
 
 
-
-
+/*
     //i need to ensure no overlapping overvals (overlap becomes merged)
 
   function getAvailability(open_intervals = [], service_duration){

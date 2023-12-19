@@ -864,8 +864,8 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
                 requested_service_duration
             ), 
             [
-                {start: "00:00", end: "01:00", open_times: [0,15,30,45], availability: 100}, 
-                {start: "01:00", end: "02:00", open_times: [75,90,105], availability: 100}
+                {start: 0, end: 60, open_times: [0,15,30,45], availability: 100}, 
+                {start: 60, end: 120,  open_times: [75,90,105], availability: 100}
             ], 
             ""); 
 
@@ -881,8 +881,8 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
                 requested_service_duration
             ), 
             [
-                {start: "00:00", end: "01:00", open_times: [0,30], availability: 100}, 
-                {start: "01:00", end: "02:00", open_times: [75], availability: 100}
+                {start: 0, end: 60, open_times: [0,30], availability: 100}, 
+                {start: 60, end: 120, open_times: [75], availability: 100}
             ], 
             ""); 
             
@@ -907,8 +907,8 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
                 requested_service_duration
             ), 
             [
-                {start: "00:00", end: "01:00", open_times: [0,30,45], availability: 75}, 
-                {start: "01:00", end: "02:00", open_times: [100], availability: 33}
+                {start: 0, end: 60,open_times: [0,30,45], availability: 75}, 
+                {start: 60, end: 120, open_times: [100], availability: 33}
             ], 
             ""); 
 
@@ -924,8 +924,8 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
                 requested_service_duration
             ), 
             [
-                {start: "00:00", end: "01:00", open_times: [30], availability: 50}, 
-                {start: "01:00", end: "02:00", open_times: [], availability: 0}
+                {start: 0, end: 60, open_times: [30], availability: 50}, 
+                {start: 60, end: 120, open_times: [], availability: 0}
             ], 
             ""); 
 
@@ -941,8 +941,8 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
                     requested_service_duration
                 ), 
                 [
-                    {start: "00:00", end: "01:00", open_times: [], availability: 0}, 
-                    {start: "01:00", end: "02:00", open_times: [], availability: 0}
+                    {start: 0, end: 60,open_times: [], availability: 0}, 
+                    {start: 60, end: 120, open_times: [], availability: 0}
                 ], 
                 ""); 
             
@@ -970,8 +970,8 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
                 requested_service_duration
             ), 
             [
-                {start: "00:00", end: "01:00", open_times: [40,50], availability: 33}, 
-                {start: "01:00", end: "02:00", open_times: [75,85], availability: 50}
+                {start: 0, end: 60, open_times: [40,50], availability: 33}, 
+                {start: 60, end: 120, open_times: [75,85], availability: 50}
             ], 
             "");
             
@@ -987,8 +987,8 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
                 requested_service_duration
             ), 
             [
-                {start: "00:00", end: "01:00", open_times: [40], availability: 33}, 
-                {start: "01:00", end: "02:00", open_times: [75], availability: 50}
+                {start: 0, end: 60, open_times: [40], availability: 33}, 
+                {start: 60, end: 120, open_times: [75], availability: 50}
             ], 
             ""); 
 
@@ -1004,8 +1004,8 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
                 requested_service_duration
             ), 
             [
-                {start: "00:00", end: "01:00", open_times: [], availability: 0}, 
-                {start: "01:00", end: "02:00", open_times: [], availability: 0}
+                {start: 0, end: 60, open_times: [], availability: 0}, 
+                {start: 60, end: 120, open_times: [], availability: 0}
             ], 
             ""); 
 

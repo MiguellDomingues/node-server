@@ -412,8 +412,7 @@ function getAvailability(breaks, appointments, time_slots, start_time, end_time,
   const getArrLength = (arr) => arr ? arr.length : 0
 
   //convert and validate inputs
-  const sorted_time_slots = sortIntervals( time_slots )
-  const time_slot_intervals = toIntervals(sorted_time_slots)
+  const time_slot_intervals = toIntervals(sortIntervals( time_slots ))
   const store_open_to_close = new Interval(start_time, end_time)
 
   assert.equal(areTimeSlotsValid(time_slot_intervals, store_open_to_close), true, 
@@ -446,11 +445,14 @@ function getAvailability(breaks, appointments, time_slots, start_time, end_time,
 
   console.log(" availability_percentages",availability_percentages)
 
-  const return_object = sorted_time_slots.map((ts,i)=>({...ts, open_times: adjusted_availabilities[i], availability: availability_percentages[i]}))
+  //NOTE: THIS WILL BREAK IF THE TIME SLOTS ARE NOT ALREADY SORTED
+  const return_object = time_slot_intervals.map((ts,i)=>({
+    start: ts.start, end: ts.end, open_times: adjusted_availabilities[i], availability: availability_percentages[i]}))
 
   console.log(" return_object",return_object)
 
   return return_object
+
   //return null;
 
   /*

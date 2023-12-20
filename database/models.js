@@ -1,7 +1,7 @@
 const { Schema, model, models } = require('mongoose');
 
 const { STATUS , AUTH_USER_TYPES, DAY_NAMES, DAY_ABBREVIATIONS } = require('../utils/constants.js');
-
+const { validateInterval } = require('../utils/functions.js');
 
 /*
 - Approved -> in progress OR canceled 
@@ -25,45 +25,81 @@ const appointmentSchema = new Schema({
     tags: [{  type: Schema.Types.ObjectId, ref: 'Tag' }]
   });
 
+
   const workingDaySchema = new Schema({
     start: String,
     end:   String,
     day: { 
       type: String, 
-      enum: Object.values(DAY_NAMES),         
+      enum: Object.values(DAY_ABBREVIATIONS),         
     },
+  }); 
+  
+  /*
+
+  workingDaySchema.pre('findOneAndUpdate', function() {
+
+      console.log("rttytyvalidate start/end", this.get("start"), this.get("end"))
+
+      validateInterval(this.get("start"), this.get("end"))
+      
   });
 
-/*
+    
+  const workingDaySchema = new Schema({
+    start: {type: String, validate:  {
+      validator: (value) => {console.log("start validate ", value, this); return true},
+      
 
-workingPlan:       {
-      type : [ workingDaySchema ],
-      validate: dateValidator
+    }},
+    end:   {type: String, validate: {
+      validator: (value) => {console.log("end validate ", value, this); return true},
+      
+    }
+    },
+    day: { 
+      type: String, 
+      enum: Object.values(DAY_NAMES),         
     },
 
-  function dateValidator (value) {
-    console.log("testing validator: start: ", value.start, " end: ", value.end, " value ", value)
-    return true
-}
+  workingDaySchema.pre('validate', function() {
 
-  workingDaySchema.pre('validate', function (next) {
+    //console.log("validate start/end", this.get("start"), this.get("end"))
+
+    console.log("workingDaySchema validate", this.start, this.end, )
+
+    //validateInterval(this.get("start"), this.get("end"))
     
-    console.log("testing validator: start: ", this.start, " end: ", this.end)
-    //if (this.startDate > this.endDate) {
-    //  this.invalidate('startDate', 'Start date must be less than end date.', this.startDate);
-   // }
-  
-    next();
-  });*/
+});*/
 
   const breakSchema = new Schema({
     start: String,
     end:   String,
     days: [{ 
       type: String, 
-      enum: Object.values(DAY_ABBREVIATIONS) 
+      enum: Object.values(DAY_ABBREVIATIONS),
+      required: true
     }],
   });
+
+/*
+
+breakSchema.pre('validate', function() {
+
+  console.log("break validate", this.start, this.end, this.days)
+
+  //validateInterval(this.get("start"), this.get("end"))
+  
+});
+
+breakSchema.pre('save', function() {
+
+  console.log("break save", this.start, this.end, this.days)
+
+  //validateInterval(this.get("start"), this.get("end"))
+  
+});
+*/
 
   const serviceDurationSchema = new Schema({
     duration: Number,
@@ -82,7 +118,13 @@ workingPlan:       {
     phone: String,
     email: String,
     title: String,
-    workingPlan:      [workingDaySchema], 
+   
+    workingPlan:[workingDaySchema],
+
+   //workingPlan: {
+     // type: [workingDaySchema], 
+     // validate: (value)=>console.log("validate wp", value)
+   // }, 
     breaks:           [breakSchema],
     serviceDurations: [serviceDurationSchema],
     //user/appointment fk's
@@ -90,7 +132,27 @@ workingPlan:       {
     tags: [{  type: Schema.Types.ObjectId, ref: 'Tag' }]
   });
 
- 
+  locationSchema.pre('findOneAndUpdate', function() {
+
+    const isWorkingPlanUpdate = (context) => context.get("workingPlan.$.start") && context.get("workingPlan.$.end")
+    const isNewBreak = (context) => context._update['$push']?.breaks?.start && context._update['$push']?.breaks?.end && context._update['$push']?.breaks?.days
+
+
+    console.log("findOneAndUpdate location",  this.getUpdate())
+
+    if(isWorkingPlanUpdate(this)){
+      console.log("validate  workingPlan start/end")
+    }
+
+    if(isNewBreak(this)){
+      console.log("validate  breaks start/end")
+    }
+  });
+
+
+    //console.log(this.get("workingPlan.$.start")); // { name: 'John' }
+    //console.log(this.getFilter()); // { name: 'John' }
+   // console.log(this.getUpdate()); // { age: 30 }
 
   const userSchema = new Schema({
     path:         String,

@@ -44,7 +44,8 @@ const JSON = {
     },
 
     appointment:{
-        
+
+          
         POST: { USER: user.addAppointment },
         PATCH: { STOREOWNER: storeowner.updateAppointmentStatus },
         DELETE: { USER: user.cancelAppointment}
@@ -52,8 +53,9 @@ const JSON = {
     },
 
     availability:{
-        
-        
+
+        GET:{ USER: user.fetchWeekSchedule }, 
+          
         workingplans: {
 
             //GET: { STOREOWNER:storeowner.fetchWorkingPlans }, 

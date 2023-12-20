@@ -5,78 +5,75 @@ const uri      = "mongodb://127.0.0.1:27017/appointment_bookings";
 
 const {User, Location, TagType , Tag , Appointment, WorkingDay, Break, ServiceDuration } = require('./models.js');
 
-
 const mockWorkingPlan = [
     {
-        day: "Monday",
+        day: "Mon",
         start: "08:00",
-        end:   "16:00",
+        end: "17:00"
     },
     {
-        day: "Tuesday",
-        start: "06:00",
-        end:   "16:00",
-    },
-    {
-        day: "Wednesday",
+        day: "Tue",
         start: "08:00",
-        end:   "18:00",
-    },
-    {
-        day: "Thursday",
+        end: "17:00"
+    }, {
+        day: "Wed",
         start: "08:00",
-        end:   "16:00",
+        end: "17:00"
     },
     {
-        day: "Friday",
-        start: "12:15",
-        end:   "14:30"
+        day: "Thu",
+        start: "08:00",
+        end: "17:00"
+    }, {
+        day: "Fri",
+        start: "09:00",
+        end: "14:00"
     },
     {
-        day: "Saturday",
+        day: "Sat",
         start: "",
-        end:   ""
+        end: ""
     },
     {
-        day: "Sunday",
+        day: "Sun",
         start: "",
-        end:   ""
-    },
+        end: ""
+    }
 ]
 
 const defaultWorkingPlan = [
     {
-        day: "Monday",
+        day: "Mon",
         start: "",
         end:   "",
     },
     {
-        day: "Tuesday",
+        day: "Tue",
         start: "",
         end:   "",
     },
     {
-        day: "Wednesday",
+        day: "Wed",
         start: "",
         end:   "",
     },
     {
-        day: "Thursday",
+        day: "Thu",
         start: "",
         end:   "",
     },
     {
-        day: "Friday",
+        day: "Fri",
         start: "",
         end:   ""
     },
     {
-        day: "Saturday",
+        day: "Sat",
         start: "",
         end:   ""
     },
     {
-        day: "Sunday",
+        day: "Sun",
         start: "",
         end:   ""
     },
@@ -84,12 +81,12 @@ const defaultWorkingPlan = [
 
 let mockBreaks = [
     {
-        days: ["Mon", "Tue", "Wed", "Thu","Fri"],
-        start: "10:15",
-        end: "10:30"
+        days: ["Mon","Tue","Wed","Thu"],
+        start: "09:00",
+        end: "09:15"
     },
     {
-        days: ["Mon", "Tue", "Wed", "Thu",],
+        days: ["Mon","Tue","Wed","Thu"],
         start: "12:00",
         end: "13:00"
     },

@@ -87,11 +87,11 @@ const time_slots = [ //assume buckets are sorted start->end
 
 { 
 days: ["Mon", "Tue", "Wed", "Thu"],
-time_slots: [  
+time_slots: [ 
+    {desc: "early morning",  start: "08:00", end:"10:00"},
     {desc: "late morning",   start: "10:00", end:"12:00"}, 
-    {desc: "late afternoon", start: "14:00", end:"17:00"},
     {desc: "early afternoon",start: "12:00", end:"14:00"}, 
-    {desc: "early morning",  start: "08:00", end:"10:00"}
+    {desc: "late afternoon", start: "14:00", end:"17:00"},  
 ]
 },
 { 

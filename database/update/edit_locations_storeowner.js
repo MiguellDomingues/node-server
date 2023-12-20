@@ -34,7 +34,7 @@ module.exports = async function editStoreOwnerLocation(storeowner_id,location){
                         tags:        tags.map( (tag) => {return {_id: tag._id}} ) // input an array of tag id's
                     }, 
                     {   //options: return the modifed document
-                        new: true 
+                        new: true , runValidators: true
                     }) 
                 .then( (result) => { 
                     // if result is null, no match was found on location and owner id's

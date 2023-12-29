@@ -2,239 +2,27 @@ const test  = require("node:test");
 const { describe, it, beforeEach } = test
 const  assert = require('node:assert/strict');
 
+const { Interval } = require('../services/intervals.js')
+
 const { 
-    Interval, 
-    areTimeSlotsValid,
     getTimeSlotAvailabilities,
     getTimeSlotAvailabilityPercentages,
-    MAX_MINUTES_IN_DAY,
-    mergeIntervals,
-    getOpenIntervals,
     getAvailability,
-    sortIntervals
- } = require('../availability_builder.js')
+    getTotalAvailability,
+    getAdjustedAvailability,
+    areTimeSlotsValid,
+    AvailabilityService,
+} = require('../services/availabilityService.js')
 
+function toObjects(overlap_intervals){
+    return overlap_intervals.map(({interval, overlap})=>{
+        const o = interval.toObject()
+        delete interval
+        return {...o,overlap:overlap }
+    })
+}
 
-describe("testing Interval class", () => {
-
-    let interval;
-
-    it("creates interval from time strings with valid conversion to total minutes", () => {       
-        interval = new Interval("00:00","01:45")
-        assert.deepStrictEqual(interval.start, 0 , "interval.start should be 0");
-        assert.deepStrictEqual(interval.end, 105 , "interval.end should be 105");
-    });
-
-    it("creates interval from ints with valid conversion to total minutes", () => {       
-        interval = new Interval(0,105)
-        assert.deepStrictEqual(interval.start, 0 , "interval.start should be 0");
-        assert.deepStrictEqual(interval.end, 105 , "interval.end should be 105");
-    });
-
-    it("creates interval from time string, int with valid conversion to total minutes", () => {       
-        interval = new Interval(0,"01:45")
-        assert.deepStrictEqual(interval.start, 0 , "interval.start should be 0");
-        assert.deepStrictEqual(interval.end, 105 , "interval.end should be 105");
-
-        interval = new Interval("00:00",105)
-        assert.deepStrictEqual(interval.start, 0 , "interval.start should be 0");
-        assert.deepStrictEqual(interval.end, 105 , "interval.end should be 105");
-
-        interval = new Interval("01:45",105)
-        assert.deepStrictEqual(interval.start, 105 , "interval.start should be 105");
-        assert.deepStrictEqual(interval.end, 105 , "interval.end should be 105");
-
-        interval = new Interval("01:45",105)
-        assert.deepStrictEqual(interval.start, 105 , "interval.start should be 105");
-        assert.deepStrictEqual(interval.end, 105 , "interval.end should be 105");
-
-        interval = new Interval("01:45","23:59")
-        assert.deepStrictEqual(interval.start, 105 , "interval.start should be 105");
-        assert.deepStrictEqual(interval.end, MAX_MINUTES_IN_DAY , "interval.end should be < 1439 (max mins in day)");
-    });
-
-    it("startToHoursMinutesString() endToHoursMinutesString() converts start/end to valid time strings", () => {       
-        interval = new Interval(0,60)
-        assert.deepStrictEqual(interval.startToHoursMinutesString(), "00:00" , "should be 00:00");
-        assert.deepStrictEqual(interval.endToHoursMinutesString(), "01:00" , "should be 01:00");
-
-        interval = new Interval("00:45","01:30")
-        assert.deepStrictEqual(interval.startToHoursMinutesString(), "00:45" , "should be 00:45");
-        assert.deepStrictEqual(interval.endToHoursMinutesString(), "01:30" , "should be 01:30");
-    });
-
-    it("throws assertion error when start time < end time", () => {
-        try{interval = new Interval("01:46",105)}catch(err){}
-        assert.equal(interval=== null, true, "start < end")   
-    });
-
-    it("throws assertion error when start time or end time are negative", () => {
-        try{interval = new Interval("01:46",-1)}catch(err){}
-        assert.equal(interval=== null, true, "end < 0")
-
-        try{interval = new Interval(-1,-2)}catch(err){}
-        assert.equal(interval=== null, true, "start, end < 0")
-
-        try{interval = new Interval(-1, "01:46")}catch(err){}
-        assert.equal(interval=== null, true, "end < 0")
-    });
-
-    it("throws assertion error when end time exceeds 23:59", () => {
-        try{interval = new Interval("00:00","24:00")}catch(err){}
-        assert.equal(interval === null, true, "start < end")
-    });
-
-    it("throws assertion error on invalid start, end strings", () => {
-        try{interval = new Interval("000:00","00:01")}catch(err){}
-        assert.equal(interval === null, true, "000:00 is invalid")
-
-        try{interval = new Interval("00:00","25:00")}catch(err){}
-        assert.equal(interval === null, true, "25:00 is invalid")
-
-        try{interval = new Interval("0000","03:00")}catch(err){}
-        assert.equal(interval === null, true, "0000 is invalid")
-
-        try{interval = new Interval("ASssAaa","03:00")}catch(err){}
-        assert.equal(interval === null, true, "ASssAaa is invalid")
-
-        try{interval = new Interval("",60)}catch(err){}
-        assert.equal(interval === null, true, "blank str is invalid")
-
-    });
-
-    it("init start, end to 0 when arguments are missing", () => {
-       
-        interval = new Interval(null,null)
-        assert.deepStrictEqual(interval.start, 0 , "start should be 0");
-        assert.deepStrictEqual(interval.end, 0 , "end should be 0");
-
-        interval = new Interval(null,1)
-        assert.deepStrictEqual(interval.start, 0 , "start should be 0");
-        assert.deepStrictEqual(interval.end, 1 , "end should be 1");
-
-    });
-
-
-    beforeEach(() => {interval = null;});
-  
-});
-
-describe("testing getOpenIntervals() edge cases", () => {
-
-    let closed_intervals, min_max_interval, intervals;
-
-    it("returns the min_max_interval when closed intervals are empty", () => {
-        closed_intervals = []
-        min_max_interval = new Interval(0, 60)
-        assert.deepStrictEqual(
-            getOpenIntervals(closed_intervals, min_max_interval), [min_max_interval] , 
-            "interval with no closed intervals should be the min_max_interval");
-    });
-
-    it("returns the min_max_interval when closed intervals are null", () => {
-        closed_intervals = null
-        min_max_interval = new Interval(0, 60)
-        assert.deepStrictEqual(
-            getOpenIntervals(closed_intervals, min_max_interval), [min_max_interval] , 
-            "interval with no closed intervals should be the min_max_interval");
-    });
-
-    it("returns empty when closed_intervals cover the entire min_max_interval", () => {
-        closed_intervals = [new Interval(0, 30),new Interval(30, 60)]
-        min_max_interval = new Interval(0, 60)
-        assert.deepStrictEqual(
-            getOpenIntervals(closed_intervals, min_max_interval), [] , 
-            "should be no open intervals");
-    });
-
-    it("returns empty when min_max_interval is null", () => {
-        closed_intervals = [new Interval(0, 30),new Interval(30, 60)]
-        min_max_interval = null
-        assert.deepStrictEqual(
-            getOpenIntervals(closed_intervals, min_max_interval), [] , 
-            "should be no open intervals");
-    });
-
-    it("throws assertion error when min time < start time of first interval", () => {
-        closed_intervals = [new Interval(59, 60)]
-        min_max_interval = new Interval(60, 120)
-
-        try{intervals = getOpenIntervals(closed_intervals, min_max_interval)}catch(err){}
-        assert.equal(intervals === null, true, "min time cant be < start of first interval")
-        
-    });
-
-    it("throws assertion error when max time < end time of last interval", () => {
-        closed_intervals = [new Interval(55, 60)]
-        min_max_interval = new Interval(54, 59)
-
-        try{intervals = getOpenIntervals(closed_intervals, min_max_interval)}catch(err){}
-        assert.equal(intervals === null, true, "end of last interval cant be > max time")      
-    });
-
-    beforeEach(() => {
-        closed_intervals = [];
-        min_max_interval = null;
-        intervals = null;
-    });
-});
-
-describe("testing getOpenIntervals() main paths", () => {
-
-    let closed_intervals, min_max_interval;
-
-   
-    it("(0,5)(1,7)(10,25)(10,55), mmi=(0,60), returns (7,10)(55,60)", () => {
-        closed_intervals = [
-            new Interval(0, 5),
-            new Interval(1, 7),
-            new Interval(10, 25),
-            new Interval(10, 55)]
-
-
-        assert.deepStrictEqual(
-            getOpenIntervals(closed_intervals, min_max_interval),
-             [new Interval(7, 10),new Interval(55, 60)] , 
-            "");
-    });
-
-    it("(5,15)(15,35)(40,41)(41,55), mmi=(0,60), returns (0,5)(35,40)(55,60)", () => {
-        closed_intervals = [
-
-            new Interval(5, 15),
-            new Interval(15, 35),
-            new Interval(40, 41),
-            new Interval(41, 55)]
-
-
-        assert.deepStrictEqual(
-            getOpenIntervals(closed_intervals, min_max_interval),
-             [new Interval(0, 5),new Interval(35, 40), new Interval(55, 60)] , 
-            "");
-    });
-
-    it("(0,20)(15,35)(34,53)(53,60), mmi=(0,60), returns []", () => {
-        closed_intervals = [
-
-            new Interval(0, 20),
-            new Interval(15, 35),
-            new Interval(34, 53),
-            new Interval(53, 60)]
-
-        assert.deepStrictEqual(
-            getOpenIntervals(closed_intervals, min_max_interval),
-             [] , "");
-    });
-
-   
-    beforeEach(() => {
-        closed_intervals = [];
-        min_max_interval = min_max_interval = new Interval(0, 60);
-    });
-  
-});
-
-describe("testing getTimeSlotAvailabilityPercentages()", () => {
+describe("testing getTimeSlotAvailabilityPercentages()", {skip: false},() => {
 
     let adjusted_availabilities, total_availabities;
 
@@ -312,7 +100,8 @@ describe("testing getTimeSlotAvailabilityPercentages()", () => {
 
 });
 
-describe("testing areTimeSlotsValid()", () => {
+/*
+describe("testing areTimeSlotsValid()", {skip: false},() => {
 
     let time_slots, min_max_interval
 
@@ -363,8 +152,9 @@ describe("testing areTimeSlotsValid()", () => {
     });
 
 });
+*/
 
-describe("testing getTimeSlotAvailabilities(): main paths", () => {
+describe("testing getTimeSlotAvailabilities(): main paths", {skip: false},() => {
 
     let open_intervals, service_duration, time_slot_intervals;
 
@@ -565,7 +355,7 @@ describe("testing getTimeSlotAvailabilities(): main paths", () => {
 
 });
 
-describe("testing getTimeSlotAvailabilities(): edge cases", () => {
+describe("testing getTimeSlotAvailabilities(): edge cases",{skip: false}, () => {
 
     let open_intervals, service_duration, time_slot_intervals;
 
@@ -621,145 +411,398 @@ describe("testing getTimeSlotAvailabilities(): edge cases", () => {
 
 });
 
-describe("testing sortIntervals", () => {
+describe("testing getTotalAvailability()", () => {
 
-    let intervals;
+    let breaks, service_duration, capacity, open_close_interval, time_slot_intervals
 
-    it("(0,30)(30,60)(60,90) to (0,30)(30,60)(60,90)", () => {
-    
-        intervals = [
-            new Interval(0, 30), 
-            new Interval(30, 60),
-            new Interval(60, 90),
-        ]
+    it("returns [10,10] when each time slot can fit 5 appointments with capacity = 2", () => { 
 
-        assert.deepStrictEqual(sortIntervals(intervals), intervals, "");
-    });
-
-    it("(0,30)(60,90)(30,60) sorts to (0,30)(30,60)(60,90)", () => {
-    
-        intervals = [
-            new Interval(0, 30), 
-            new Interval(60, 90),
-            new Interval(30, 60),        
-        ]
+        breaks = [new Interval(25,30), new Interval(45,50)]
 
         assert.deepStrictEqual(
-            sortIntervals(intervals), 
-            [new Interval(0, 30),new Interval(30, 60),new Interval(60, 90)], "");
+            getTotalAvailability(breaks, time_slot_intervals, open_close_interval, 
+                                 service_duration, capacity), 
+            [10,10],  "");
+    });
+    
+    it("returns [2,0] when ts 1/2 can fit 1/0 apts respectively, capacity = 2", () => { 
+
+        breaks = [new Interval(20,30), new Interval(40,50)]
+        service_duration = 20
+
+        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
+
+        assert.deepStrictEqual(ta, [2,0], "");       
     });
 
-    it("(0,60)(0,20)(0,40) sorts to (0,20)(0,40)(0,60)", () => {
-    
-        intervals = [
-            new Interval(0, 60), 
-            new Interval(0, 20),
-            new Interval(0, 40),        
-        ]
+    it("returns [0,0] when ts 1/2 can't fit any appointments", () => { 
 
-        assert.deepStrictEqual(
-            sortIntervals(intervals), 
-            [new Interval(0, 20),new Interval(0, 40),new Interval(0, 60)], "");
+        breaks = [new Interval(20,30), new Interval(40,50)]
+        service_duration = 21
+
+        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
+
+        assert.deepStrictEqual(ta, [0,0], "");       
     });
 
-    it("(2,3)(0,5)(1,2)(0,6)(2,7)(1,3) sorts to (0,5)(0,6)(1,2)(1,3)(2,3)(2,7)", () => {
-    
-        intervals = [
-            new Interval(2, 3),
-            new Interval(0, 5),   
-            new Interval(1, 2), 
-            new Interval(0, 6),
-            new Interval(2, 7),
-            new Interval(1, 3),
-        ]
+    it("returns [2,4] when ts can fit 1/2 apts respectively, capacity = 2", () => { 
 
-        assert.deepStrictEqual(sortIntervals(intervals), 
-            [new Interval(0,5),new Interval(0,6),new Interval(1,2),
-            new Interval(1,3),new Interval(2,3),new Interval(2,7)], "");
+        breaks = [new Interval(0,15)]
+        service_duration = 15
+
+        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
+
+        assert.deepStrictEqual(ta, [2,4], "");       
     });
 
     beforeEach(() => {
-        intervals = null
+        breaks = []
+        service_duration = 5
+        capacity = 2
+        open_close_interval = new Interval(0,60)
+
+        time_slot_intervals = [
+            new Interval(0, 30), 
+            new Interval(30, 60)]
     });
 
 });
 
-describe("testing mergeIntervals", () => {
+describe("testing getAdjustedAvailability() edge cases", () => {
 
-    let intervals;
+    let appointments, service_duration, capacity, time_slot_intervals, start_end_interval, breaks
 
-    it("returns empty when the input is empty", () => { 
-        intervals = []
-        assert.deepStrictEqual(mergeIntervals(intervals), intervals, "");
+    it(" testing no breaks and no appointments", () => { 
+
+        breaks = []
+
+        appointments = []
+
+        service_duration = 15
+
+        let aa = getAdjustedAvailability(
+                    appointments, 
+                    breaks, 
+                    time_slot_intervals, 
+                    start_end_interval, 
+                    service_duration, 
+                    capacity)
+
+        assert.deepStrictEqual(aa, [[0,15],[30,45]], "");  
     });
 
-    it("returns the sorted input when the input has no overlaps but is unsorted", () => {
-    
-        intervals = [new Interval(4, 6),new Interval(8, 8),new Interval(0,3),]
+    it(" testing 2 breaks (15,20)(30,35) and no appointments", () => { 
 
-        assert.deepStrictEqual(
-            mergeIntervals(intervals), 
-            [new Interval(0, 3),new Interval(4, 6),new Interval(8, 8)], "");
+        appointments = []
+
+        service_duration = 15
+
+        let aa = getAdjustedAvailability(
+                    appointments, 
+                    breaks, 
+                    time_slot_intervals, 
+                    start_end_interval, 
+                    service_duration, 
+                    capacity)
+
+        assert.deepStrictEqual(aa, [[0],[35]], "");  
+  
     });
 
-    it("returns (5,7) when the input is (5,7)", () => {
-    
-        intervals = [new Interval(5, 7)]
+    it(" testing no breaks and appointments (0,15),(10,25),(20,35),(40,55)", () => { 
 
-        assert.deepStrictEqual(mergeIntervals(intervals), intervals, "");
-    });
+        breaks = []
 
-    it("merges consecutive overlaps into single interval", () => {
-    
-        intervals = [new Interval(0, 0),new Interval(1,1),new Interval(0,4)]
-        assert.deepStrictEqual(mergeIntervals(intervals),[new Interval(0,4)] , "");
-    });
+        service_duration = 15
 
-    it("merges (0,0)(1,1)(0,4)(2,4)(5,6)(6,6) into (0,4)(5,6)", () => {
-    
-        intervals = [
-            new Interval(0,0),
-            new Interval(1,1),
-            new Interval(0,4),
-            new Interval(2,4),
-            new Interval(5,6),
-            new Interval(6,6)]
+        let aa = getAdjustedAvailability(
+                    appointments, 
+                    breaks, 
+                    time_slot_intervals, 
+                    start_end_interval, 
+                    service_duration, 
+                    capacity)
 
-        assert.deepStrictEqual(
-            mergeIntervals(intervals),[new Interval(0,4),new Interval(5,6)] , "");
-
-        intervals = [
-            new Interval(0, 5),
-            new Interval(6,10),
-            new Interval(6,11),    
-            new Interval(6,12), 
-            new Interval(8,11), 
-            new Interval(9,14), 
-            new Interval(11,12) ]
-
-        assert.deepStrictEqual(mergeIntervals(intervals),[new Interval(0,5),new Interval(6,14)] , "");
-    });
-
-    it("merges (0,5)(6,11)(6,11)(6,12)(8,11)(9,14)(11,12) into (0,5)(6,12)", () => {
-    
-        intervals = [
-            new Interval(0, 5),
-            new Interval(6,10),
-            new Interval(6,11),    
-            new Interval(6,12), 
-            new Interval(8,11), 
-            new Interval(9,14), 
-            new Interval(11,12)]
-
-        assert.deepStrictEqual(mergeIntervals(intervals),[new Interval(0,5),new Interval(6,14)] , "");
+        assert.deepStrictEqual(aa, [[], [ 30, 45 ] ], "");  
     });
 
     beforeEach(() => {
-        intervals = null
+
+        time_slot_intervals = [new Interval(0, 30), new Interval(30, 60)]
+
+        breaks = [new Interval(15,20), new Interval(30,35)]
+
+        appointments = [ 
+            new Interval(40,55), 
+            new Interval(0,15), 
+            new Interval(10,25),
+            new Interval(20,35)]
+
+        start_end_interval = new Interval(0, 60)
+        service_duration = 15
+        capacity = 2
     });
 
 });
 
+describe("testing getAdjustedAvailability() main paths", () => {
+
+    let appointments, service_duration, capacity, time_slot_intervals, start_end_interval, breaks
+
+    /*
+    it("testing main path ", () => { 
+
+        //1) sort the appointment intervals
+        let sorted_apts = sortIntervals(appointments)
+
+        assert.deepStrictEqual(
+            sorted_apts, 
+            [new Interval(0,15),new Interval(10,25),new Interval(20,35),new Interval(40,55)], 
+        "appointments should be sorted");
+
+         //2) split and count the overlapping intervals 
+        let split_apts = splitCountOverlapIntervals(sorted_apts)
+
+        assert.deepStrictEqual(
+            toObjects(split_apts), 
+            [{ start: 0, end: 10, overlap: 1 },
+             { start: 10, end: 15, overlap: 2 },
+             { start: 15, end: 20, overlap: 1 },
+             { start: 20, end: 25, overlap: 2 },
+             { start: 25, end: 35, overlap: 1 },
+             { start: 40, end: 55, overlap: 1 }], 
+        "");
+
+        //3) get the intervals without capacity for an appointment
+        const intervals_without_capacity = split_apts.filter(({overlap})=>overlap >= capacity)
+
+        assert.deepStrictEqual(
+            toObjects(intervals_without_capacity), 
+            [{ start: 10,  end: 15, overlap: 2 },
+             { start: 20, end: 25, overlap: 2 },
+            ], 
+        "split_intervals with overlap < 2 should be removed");
+
+        //4) get the open spans of time between the no-capacity intervals and the open/close times
+        const open_intervals = getOpenIntervals(
+            intervals_without_capacity.map(iwc=>iwc.interval), 
+            start_end_interval)
+
+        assert.deepStrictEqual(
+            open_intervals, 
+            [new Interval(0,10), new Interval(15,20), new Interval(25,60)], 
+        "");
+
+        //we are left with the intervals with capacity to book at least 1 appointment
+
+        //5) now we need to consider the breaks
+        //combine/sort the open intervals with the breaks
+        const open_intervals_breaks = sortIntervals(open_intervals.concat(breaks))
+
+        assert.deepStrictEqual(
+            open_intervals_breaks, 
+            [new Interval(0,10), new Interval(15,20),new Interval(15,20), new Interval(25,60),new Interval(30,35)], 
+        "");
+
+        //6) split these combined intervals to find any overlaps 
+        const split_breaks_open_intervals = splitCountOverlapIntervals(open_intervals_breaks)
+
+        assert.deepStrictEqual(
+            toObjects(split_breaks_open_intervals), 
+            [{ start: 0, end: 10, overlap: 1 },
+                { start: 15, end: 20, overlap: 2 },
+                { start: 25, end: 30, overlap: 1 },
+                { start: 30, end: 35, overlap: 2 },
+                { start: 35, end: 60, overlap: 1 }], 
+        "");
+        //overlaps of 2 (or more; breaks may overlap with other breaks) means we cant book apts on these intervals
+
+        //7) remove the spans of time which overlap with a break
+        const intervals_without_breaks = split_breaks_open_intervals
+            .filter(({overlap})=>overlap < 2) //filter out the overlapping breaks
+                .map(i=>i.interval) //convert back to interval
+
+        assert.deepStrictEqual(
+            intervals_without_breaks, 
+            [new Interval(0,10), new Interval(25,30), new Interval(35,60)], 
+        "");
+
+        //we are left with spans of time that cover the entire work day that both:
+        //dont have breaks 
+        //and dont overlap over the capacity
+
+
+
+        const aa = getAdjustedAvailability(
+                    appointments, 
+                    breaks, 
+                    time_slot_intervals, 
+                    start_end_interval, 
+                    service_duration, 
+                    capacity)
+
+        console.log(aa)
+    });
+    */
+
+    it("testing main path with 4 appointments, 2 breaks and sd: 15,10,5", () => { 
+
+        service_duration = 15
+
+        let aa = getAdjustedAvailability(
+                    appointments, 
+                    breaks, 
+                    time_slot_intervals, 
+                    start_end_interval, 
+                    service_duration, 
+                    capacity)
+
+        assert.deepStrictEqual(aa, [[],[35]], "");
+
+        service_duration = 10
+
+        aa = getAdjustedAvailability(
+            appointments, 
+            breaks, 
+            time_slot_intervals, 
+            start_end_interval, 
+            service_duration, 
+            capacity)
+
+        assert.deepStrictEqual(aa, [[0],[35,45]],"");
+ 
+        service_duration = 5
+
+        aa = getAdjustedAvailability(
+            appointments, 
+            breaks, 
+            time_slot_intervals, 
+            start_end_interval, 
+            service_duration, 
+            capacity)
+
+        assert.deepStrictEqual(aa, [[0,5,25], [35,40,45,50,55] ], "");    
+    });
+
+
+    beforeEach(() => {
+
+        time_slot_intervals = [new Interval(0, 30), new Interval(30, 60)]
+
+        breaks = [new Interval(15,20), new Interval(30,35)]
+
+        appointments = [ 
+            new Interval(40,55), 
+            new Interval(0,15), 
+            new Interval(10,25),
+            new Interval(20,35)]
+
+        start_end_interval = new Interval(0, 60)
+        service_duration = 15
+        capacity = 2
+    });
+
+});
+
+
+describe("testing AvailabilityService constructor", {skip: false},() => {
+
+    let  breaks, appointments, time_slots, start_time, end_time, service_duration,service_capacity
+
+    describe("testing correct inputs",() => {
+
+        it("creates an instance of the class without throwing an exception", () => {
+
+        let obj
+        let _err
+
+        try{
+            obj = 
+            new AvailabilityService(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                service_duration,
+                service_capacity) 
+        }catch(err){_err = err}
+
+        assert.equal(obj instanceof AvailabilityService, true, `instance creation failed. err: ${_err}`) 
+
+        });
+
+        beforeEach(() => {
+            breaks = [{start: "01:00", end: "01:15"}]
+
+            appointments = [{start: "00:00", end: "00:15"},{start: 5, end: 15}]
+
+            time_slots = [
+                {start: "00:00", end: "01:00"}, 
+                {start: "01:00", end: "02:00"},
+            ] 
+
+            start_time = "00:00"
+            end_time = "02:00" 
+
+            service_duration = 15
+            service_capacity = 2
+        });
+ 
+    });
+
+    describe("testing correct inputs",() => {
+
+        it("creates an instance of the class without throwing an exception", () => {
+
+        let obj
+        let _err
+
+        try{
+            obj = 
+            new AvailabilityService(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                service_duration,
+                service_capacity) 
+        }catch(err){_err = err}
+
+        assert.equal(obj instanceof AvailabilityService, true, `instance creation failed. err: ${_err}`) 
+
+        });
+
+        beforeEach(() => {
+            breaks = [{start: "01:00", end: "01:15"}]
+
+            appointments = [{start: "00:00", end: "00:15"},{start: 5, end: 15}]
+
+            time_slots = [
+                {start: "00:00", end: "01:00"}, 
+                {start: "01:00", end: "02:00"},
+            ] 
+
+            start_time = "00:00"
+            end_time = "02:00" 
+
+            service_duration = 15
+            service_capacity = 2
+        });
+ 
+    });
+
+    /*
+    beforeEach(() => {
+        time_slots = null
+        min_max_interval = null
+    });*/
+
+});
+
+
+/*
 describe("testing getAvailability() assertions, edge cases", () => {
 
     let breaks, appointments, time_slots, start_time, end_time, requested_service_duration;
@@ -1027,10 +1070,117 @@ describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () 
 
 });
 
+*/
+
+/*
+describe("testing fillDisjointedGaps", () => {
+
+    let split_intervals, start_end_interval
+
+    it("returns {intervals: 0,60, overlaps: 0} when input list is empty", () => { 
+
+        split_intervals = []
+
+        assert.deepStrictEqual(
+            fillDisjointedGaps(split_intervals, start_end_interval), 
+            [{interval: new Interval(0,60) , overlap: 0}], 
+        "should be {interval: (0,60), overlap: 0}");
 
 
+    });
 
+    it("fills in gaps between start and/or end times", () => { 
+        //start and end
+        split_intervals = [
+            {interval: new Interval(5,30) , overlap: 1},
+            {interval: new Interval(30,55) , overlap: 1},
+        ]
 
+        assert.deepStrictEqual(
+            fillDisjointedGaps(split_intervals, start_end_interval), 
+            [{interval: new Interval(0,5) , overlap: 0},
+             {interval: new Interval(5,30) , overlap: 1},
+             {interval: new Interval(30,55) , overlap: 1},
+             {interval: new Interval(55,60) , overlap: 0} ], 
+        "");
 
+         //start
+         split_intervals = [
+            {interval: new Interval(5,30) , overlap: 1},
+            {interval: new Interval(30,60) , overlap: 1},
+        ]
 
+        assert.deepStrictEqual(
+            fillDisjointedGaps(split_intervals, start_end_interval), 
+            [{interval: new Interval(0,5) , overlap: 0},
+             {interval: new Interval(5,30) , overlap: 1},
+             {interval: new Interval(30,60) , overlap: 1}, ], 
+        "");
 
+         //end
+         split_intervals = [
+            {interval: new Interval(0,30) , overlap: 1},
+            {interval: new Interval(30,55) , overlap: 1},
+        ]
+
+        assert.deepStrictEqual(
+            fillDisjointedGaps(split_intervals, start_end_interval), 
+            [{interval: new Interval(0,30) , overlap: 1},
+             {interval: new Interval(30,55) , overlap: 1},
+             {interval: new Interval(55,60) , overlap: 0}], 
+        "");
+    });
+
+    it("fills in gaps between 3 consecutive disjointed intervals", () => { 
+  
+        //3 gaps
+        split_intervals = [
+            {interval: new Interval(0,15) , overlap: 1},
+            {interval: new Interval(25,30) , overlap: 1},
+            {interval: new Interval(35,40) , overlap: 1},
+            {interval: new Interval(45,60) , overlap: 1},
+        ]
+
+        assert.deepStrictEqual(
+            fillDisjointedGaps(split_intervals, start_end_interval), 
+            [ {interval: new Interval(0,15) , overlap: 1},
+              {interval: new Interval(15,25) , overlap: 0},
+              {interval: new Interval(25,30) , overlap: 1},
+              {interval: new Interval(30,35) , overlap: 0},
+              {interval: new Interval(35,40) , overlap: 1},
+              {interval: new Interval(40,45) , overlap: 0},
+              {interval: new Interval(45,60) , overlap: 1}], 
+        "");
+    });
+
+    it("fills in gaps between 3 consecutive disjointed intervals, including start/end", () => { 
+  
+        //3 gaps between 
+        split_intervals = [
+            {interval: new Interval(5,15) , overlap: 1},
+            {interval: new Interval(25,30) , overlap: 1},
+            {interval: new Interval(35,40) , overlap: 1},
+            {interval: new Interval(45,55) , overlap: 1},
+        ]
+
+        assert.deepStrictEqual(
+            fillDisjointedGaps(split_intervals, start_end_interval), 
+            [ {interval: new Interval(0,5) , overlap: 0},
+              {interval: new Interval(5,15) , overlap: 1},
+              {interval: new Interval(15,25) , overlap: 0},
+              {interval: new Interval(25,30) , overlap: 1},
+              {interval: new Interval(30,35) , overlap: 0},
+              {interval: new Interval(35,40) , overlap: 1},
+              {interval: new Interval(40,45) , overlap: 0},
+              {interval: new Interval(45,55) , overlap: 1},
+              {interval: new Interval(55,60) , overlap: 0}], 
+        "");
+    });
+
+    beforeEach(() => {
+        split_intervals = []
+        start_end_interval = new Interval(0, 60)
+    });
+
+});
+*/

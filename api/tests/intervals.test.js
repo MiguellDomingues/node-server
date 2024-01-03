@@ -8,7 +8,10 @@ const {
     mergeIntervals,
     getOpenIntervals,
     sortIntervals,
-    splitCountOverlapIntervals
+    splitCountOverlapIntervals,
+    toIntervals,
+    splitCountOverlapIntervals_sets,
+    splitDiffOverlapIntervals,
 } = require('../services/intervals.js')
 
 function toObjects(overlap_intervals){
@@ -377,9 +380,17 @@ describe("testing mergeIntervals", {skip: false},() => {
 
 });
 
-describe("testing splitOverlapIntervals", () => {
+describe("testing splitCountOverlapIntervals",  {skip: false},() => {
 
     let intervals;
+
+    it("returns the same output when the output is directly passed as an input ", () => { 
+
+        intervals = []
+        assert.deepStrictEqual( splitCountOverlapIntervals(intervals), [],"");     
+    });
+
+
 
     it("returns empty if the input is empty or null", () => { 
 
@@ -563,7 +574,7 @@ describe("testing splitOverlapIntervals", () => {
 
         intervals.push(new Interval(7,11))
 
-        console.log(toObjects(splitCountOverlapIntervals(intervals) ) )
+        //console.log(toObjects(splitCountOverlapIntervals(intervals) ) )
 
         assert.deepStrictEqual(
             toObjects(splitCountOverlapIntervals(intervals)), 
@@ -668,15 +679,350 @@ describe("testing splitOverlapIntervals", () => {
     });
     */
 
-     
-
     beforeEach(() => {
         intervals= [new Interval(1,7), new Interval(3,9)]
     });
 
 });
 
+describe("testing splitUnionOverlapIntervals with inital set: (0,6,(0,1,2))", () => {
+
+    let interval_sets;
+
+    it(" returns (0,6,[S1+S2]) on second set: (0,6,[1,3])", () => { 
+        //C1
+        interval_sets.push({
+            interval: new Interval(0,6),
+            employees: ["1", "3"]
+        })
+
+        assert.deepStrictEqual( 
+            splitCountOverlapIntervals_sets(interval_sets), 
+            [ {
+                interval: new Interval(0,6),
+                map: [ '1', '3', '0', '2' ]
+              }],"");  
+    });
+
+    it(" returns (0,6,[S1+S2])(6,8,[S2]) on second set: (0,8,(1,3))", () => { 
+
+        interval_sets.push({
+            interval: new Interval(0,8),
+            employees: ["1", "3"]
+        })
+
+        assert.deepStrictEqual( 
+            splitCountOverlapIntervals_sets(interval_sets), 
+            [ {
+                interval: new Interval(0,6),
+                map: [ '1', '3', '0', '2' ]
+              },
+              {
+                interval: new Interval(6,8),
+                map: ['1', '3']
+             }],"");  
+
+    });
+
+    it(" returns (0,4,[S1+S2])(4,6,[S2]) on second set: (0,8,(1,3))", () => { 
+
+        interval_sets.push( {
+            interval: new Interval(0,4),
+            employees: ["1", "3"]
+        })
+
+        assert.deepStrictEqual( 
+            splitCountOverlapIntervals_sets(interval_sets), 
+            [ {
+                interval: new Interval(0,4),
+                map: [ '1', '3', '0', '2' ]
+              },
+              {
+                interval: new Interval(4,6),
+                map: ['0', '1', '2']
+              }],"");     
+    });
+
+    it(" returns (0,1,[S1])(1,6,[S1+S2](6,8,[S2]) on second set: (1,8,(1,3))", () => { 
+
+        interval_sets.push({
+            interval: new Interval(1,8),
+            employees: ["1", "3"]
+        })
+
+        assert.deepStrictEqual( 
+            splitCountOverlapIntervals_sets(interval_sets), 
+            [ {
+                interval: new Interval(0,1),
+                map: ['0', '1', '2']
+              },
+              {
+                interval: new Interval(1,6),
+                map: ['1', '3', '0', '2' ]
+              },
+              {
+                interval: new Interval(6,8),
+                map: ['1', '3']
+              }],"");     
+    });
+
+    it(" returns (0,1,[S1])(1,6,[S1+S2] on second set: (1,6,(1,3))", () => { 
+
+        interval_sets.push({
+            interval: new Interval(1,6),
+            employees: ["1", "3"]
+        })
+
+        assert.deepStrictEqual( 
+            splitCountOverlapIntervals_sets(interval_sets), 
+            [ {
+                interval: new Interval(0,1),
+                map: ['0', '1', '2']
+              },
+              {
+                interval: new Interval(1,6),
+                map: ['1', '3', '0', '2' ]
+              }],"");     
+    });
+
+    it(" returns (0,1,[S1])(1,4,[S1+S2])(4,6,[S1]) on second set: (1,4,(1,3))", () => { 
+
+        interval_sets.push({
+            interval: new Interval(1,4),
+            employees: ["1", "3"]
+        })
+
+        assert.deepStrictEqual( 
+            splitCountOverlapIntervals_sets(interval_sets), 
+            [ {
+                interval: new Interval(0,1),
+                map: ['0', '1', '2']
+              },
+              {
+                interval: new Interval(1,4),
+                map: ['1', '3', '0', '2' ]
+              },
+              {
+                interval: new Interval(4,6),
+                map: ['0', '1', '2']
+              }],"");     
+    });
+
+    it(" returns (0,6,[S1])(6,8,[S2]) on second set: (6,8,(1,3))", () => { 
+
+        interval_sets.push({
+            interval: new Interval(6,8),
+            employees: ["1", "3"]
+        })
+
+        assert.deepStrictEqual( 
+            splitCountOverlapIntervals_sets(interval_sets), 
+            [ {
+                interval: new Interval(0,6),
+                map: ['0', '1', '2']
+              },
+              {
+                interval: new Interval(6,8),
+                map: ['1', '3']
+              }],"");     
+    });
 
 
+    /*
+    it(" testing all 7 cases", () => { 
+        //C1
+        let input = [
+            {
+                interval: new Interval(0,6),
+                employees: ["0", "1", "2"]
+            },
+            {
+                interval: new Interval(0,6),
+                employees: ["1", "3"]
+            }
+        ]
+        console.log("C1: splitCountOverlapIntervals_sets",splitCountOverlapIntervals_sets(input))
+
+        //C2
+        input = [
+            {
+                interval: new Interval(0,6),
+                employees: ["0", "1", "2"]
+            },
+            {
+                interval: new Interval(0,8),
+                employees: ["1", "3"]
+            }
+        ]
+
+        console.log("C2: splitCountOverlapIntervals_sets",splitCountOverlapIntervals_sets(input))
+        
+         //C3
+         input = [
+            {
+                interval: new Interval(0,6),
+                employees: ["0", "1", "2"]
+            },
+            {
+                interval: new Interval(0,4),
+                employees: ["1", "3"]
+            }
+        ]
+
+        console.log("C3: splitCountOverlapIntervals_sets",splitCountOverlapIntervals_sets(input))
+
+         //C4
+         input = [
+            {
+                interval: new Interval(0,6),
+                employees: ["0", "1", "2"]
+            },
+            {
+                interval: new Interval(1,8),
+                employees: ["1", "3"]
+            }
+        ]
+
+        console.log("C4: splitCountOverlapIntervals_sets",splitCountOverlapIntervals_sets(input))
+
+         //C5
+         input = [
+            {
+                interval: new Interval(0,6),
+                employees: ["0", "1", "2"]
+            },
+            {
+                interval: new Interval(1,6),
+                employees: ["1", "3"]
+            }
+        ]
+
+        console.log("C5: splitCountOverlapIntervals_sets",splitCountOverlapIntervals_sets(input))
+
+         //C6
+         input = [
+            {
+                interval: new Interval(0,6),
+                employees: ["0", "1", "2"]
+            },
+            {
+                interval: new Interval(1,4),
+                employees: ["1", "3"]
+            }
+        ]
+
+        console.log("C6: splitCountOverlapIntervals_sets",splitCountOverlapIntervals_sets(input))
+
+        console.log("C5: splitCountOverlapIntervals_sets",splitCountOverlapIntervals_sets(input))
+
+        //C7
+        input = [
+           {
+               interval: new Interval(0,6),
+               employees: ["0", "1", "2"]
+           },
+           {
+               interval: new Interval(6,8),
+               employees: ["1", "3"]
+           }
+       ]
+
+       console.log("C7: splitCountOverlapIntervals_sets",splitCountOverlapIntervals_sets(input))
+    });
+    */
+
+    beforeEach(() => {
+
+        interval_sets = [ 
+            {
+               interval: new Interval(0,6),
+               employees: ["0", "1", "2"]
+           }
+        ] 
+       
+    });
+
+});
+
+describe("testing splitDiffOverlapIntervals", () => {
+
+    let availability_sets, unavailability_sets;
+
+    it(" testing ", () => { 
+
+        const availability = splitCountOverlapIntervals_sets(availability_sets)
+       
+        console.log("/////", availability )
+
+        unavailability_sets = [ 
+            {
+               interval: new Interval(2,4),
+               employees: ["0", "1"]
+           },
+          ]
+
+        let unavailability = splitCountOverlapIntervals_sets(unavailability_sets)
+
+        console.log("/////", unavailability )
+
+        let a = splitDiffOverlapIntervals(availability, unavailability)
+
+       // console.log("splitDiffOverlapIntervals: ", a )
+
+        unavailability_sets = [ 
+            {
+               interval: new Interval(2,4),
+               employees: ["0", "1"]
+           },
+           {
+            interval: new Interval(6,7),
+            employees: ["0", "1", "2"]
+        }] 
+
+        unavailability = splitCountOverlapIntervals_sets(unavailability_sets)
+
+          a = splitDiffOverlapIntervals(availability, unavailability)
+
+         // console.log("splitDiffOverlapIntervals: ", a )
+
+          unavailability_sets = [ 
+            {
+               interval: new Interval(2,4),
+               employees: ["0", "1"]
+           },
+           {
+            interval: new Interval(6,7),
+            employees: ["0", "1", "2"]
+        },
+        {
+            interval: new Interval(8,9),
+            employees: ["3"] //["3"]
+        }] 
+
+        unavailability = splitCountOverlapIntervals_sets(unavailability_sets)
+
+        a = splitDiffOverlapIntervals(availability, unavailability)
+
+        console.log("splitDiffOverlapIntervals: ", a )
 
 
+     
+    });
+
+    beforeEach(() => {
+
+        availability_sets = [ 
+            {
+               interval: new Interval(0,10),
+               employees: ["0", "1", "2"]
+           },
+           {
+            interval: new Interval(6,10),
+            employees: ["3"]
+        }] 
+
+        unavailability_sets = []
+       
+    });
+
+});

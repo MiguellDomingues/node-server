@@ -10,8 +10,9 @@ const {
     getAvailability,
     getTotalAvailability,
     getAdjustedAvailability,
-    areTimeSlotsValid,
     AvailabilityService,
+    getTotalAvailability_test,
+    getAdjustedAvailability_test
 } = require('../services/availabilityService.js')
 
 function toObjects(overlap_intervals){
@@ -21,6 +22,224 @@ function toObjects(overlap_intervals){
         return {...o,overlap:overlap }
     })
 }
+
+describe("testing AvailabilityService constructor", {skip: false},() => {
+
+    let  breaks, appointments, time_slots, start_time, end_time, service_duration,service_capacity
+
+    describe("testing with valid inputs",() => {
+
+        it("creates an instance of the class without throwing an exception", () => {
+
+        let obj
+        let _err
+
+        try{
+            obj = 
+            new AvailabilityService(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                service_duration,
+                service_capacity) 
+        }catch(err){_err = err}
+
+        assert.equal(obj instanceof AvailabilityService, true, `instance creation failed. err: ${_err}`) 
+
+        });
+
+        beforeEach(() => {
+            breaks = [{start: "01:00", end: "01:15"}]
+
+            appointments = [{start: "00:00", end: "00:15"},{start: 5, end: 15}]
+
+            time_slots = [
+                {start: "00:00", end: "01:00"}, 
+                {start: "01:00", end: "02:00"},
+            ] 
+
+            start_time = "00:00"
+            end_time = "02:00" 
+
+            service_duration = 15
+            service_capacity = 2
+        });
+ 
+    });
+
+    describe("testing assertion triggers for invalid inputs",() => {
+
+        it("throws assertion when breaks are invalid", () => {
+
+            let obj, _err
+
+            try{
+                obj = 
+                new AvailabilityService(
+                    [{start: "01:00", end: "aaaaaa"}], 
+                    appointments,
+                    time_slots,
+                    start_time,
+                    end_time,
+                    service_duration,
+                    service_capacity) 
+            }catch(err){_err = err}
+
+            assert.equal(obj === undefined, true, ``) 
+
+        });
+
+        it("throws assertion when appointments are invalid", () => {
+
+            let obj, _err
+
+            try{
+                obj = 
+                new AvailabilityService(
+                    breaks, 
+                    [{start: "00:00", end: "00:15"},{start: -1, end: 15}],
+                    time_slots,
+                    start_time,
+                    end_time,
+                    service_duration,
+                    service_capacity) 
+            }catch(err){_err = err}
+
+            assert.equal(obj === undefined, true, ``) 
+
+        });
+
+        it("throws assertion when time_slots are invalid", () => {
+
+            let obj, _err
+
+            try{
+                obj = 
+                new AvailabilityService(
+                    breaks, 
+                    appointments,
+                    [
+                        {start: "00:59", end: "01:00"}, 
+                        {start: "01:00", end: "02:00"},
+                    ],
+                    start_time,
+                    end_time,
+                    service_duration,
+                    service_capacity) 
+            }catch(err){_err = err}
+
+            assert.equal(obj === undefined, true, ``) 
+
+        });
+
+        it("throws assertion when start time is invalid", () => {
+
+            let obj, _err
+
+            try{
+                obj = 
+                new AvailabilityService(
+                    breaks, 
+                    appointments,
+                    time_slots,
+                    "24:00",
+                    end_time,
+                    service_duration,
+                    service_capacity) 
+            }catch(err){_err = err}
+
+            assert.equal(obj === undefined, true, ``) 
+
+        });
+
+        it("throws assertion when end time is invalid", () => {
+
+            let obj, _err
+
+            try{
+                obj = 
+                new AvailabilityService(
+                    breaks, 
+                    appointments,
+                    time_slots,
+                    start_time,
+                    "00:60",
+                    service_duration,
+                    service_capacity) 
+            }catch(err){_err = err}
+
+            assert.equal(obj === undefined, true, ``) 
+
+        });
+
+        it("throws assertion when service_duration is invalid", () => {
+
+            let obj, _err
+
+            try{
+                obj = 
+                new AvailabilityService(
+                    breaks, 
+                    appointments,
+                    time_slots,
+                    start_time,
+                    end_time,
+                    0,
+                    service_capacity) 
+            }catch(err){_err = err}
+
+            assert.equal(obj === undefined, true, ``) 
+
+        });
+
+        it("throws assertion when service_capacity is invalid", () => {
+
+            let obj, _err
+
+            try{
+                obj = 
+                new AvailabilityService(
+                    breaks, 
+                    appointments,
+                    time_slots,
+                    start_time,
+                    end_time,
+                    service_duration,
+                    0) 
+            }catch(err){_err = err}
+
+            assert.equal(obj === undefined, true, ``) 
+
+        });
+
+        beforeEach(() => {
+            breaks = [{start: "01:00", end: "01:15"}]
+
+            appointments = [{start: "00:00", end: "00:15"},{start: 5, end: 15}]
+
+            time_slots = [
+                {start: "00:00", end: "01:00"}, 
+                {start: "01:00", end: "02:00"},
+            ] 
+
+            start_time = "00:00"
+            end_time = "02:00" 
+
+            service_duration = 15
+            service_capacity = 2
+        });
+ 
+    });
+
+    /*
+    beforeEach(() => {
+        time_slots = null
+        min_max_interval = null
+    });*/
+
+});
 
 describe("testing getTimeSlotAvailabilityPercentages()", {skip: false},() => {
 
@@ -99,60 +318,6 @@ describe("testing getTimeSlotAvailabilityPercentages()", {skip: false},() => {
     });
 
 });
-
-/*
-describe("testing areTimeSlotsValid()", {skip: false},() => {
-
-    let time_slots, min_max_interval
-
-     it("returns true on valid time slots", () => {
-       
-        time_slots = [new Interval(0, 20), new Interval(20, 40),new Interval(40, 60)]
-        min_max_interval = new Interval(0,60)
-               
-        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), true, "should be valid time slots")
-
-        time_slots = [new Interval(0, 60)]
-        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), true, "should be valid time slots")
-
-     });
-
-     it("returns false when end time on last time slot is not equal to min_max_interval end", () => {
-       
-        time_slots = [new Interval(0, 20), new Interval(20, 40),new Interval(40, 59)]
-        min_max_interval = new Interval(0,60)
-     
-        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), false, "should be valid time slots")
-     });
-
-     it("returns false when start time on first time slot is not equal to min_max_interval start", () => {
-       
-        time_slots = [new Interval(0, 20), new Interval(20, 40),new Interval(40, 60)]
-        min_max_interval = new Interval(1,60)
-     
-        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), false, "should be valid time slots")
-
-     });
-
-     it("returns false when timeslot.end != timeslot.start", () => {
-       
-        time_slots = [new Interval(0, 19), new Interval(20, 40),new Interval(40, 60)]
-        min_max_interval = new Interval(0,60)
-     
-        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), false, "should be invalid time slots")
-
-        time_slots = [new Interval(0, 36), new Interval(35, 60)]
-        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), false, "should be invalid time slots")
-
-     });
-
-    beforeEach(() => {
-        time_slots = null
-        min_max_interval = null
-    });
-
-});
-*/
 
 describe("testing getTimeSlotAvailabilities(): main paths", {skip: false},() => {
 
@@ -411,63 +576,7 @@ describe("testing getTimeSlotAvailabilities(): edge cases",{skip: false}, () => 
 
 });
 
-describe("testing getTotalAvailability()", () => {
-
-    let breaks, service_duration, capacity, open_close_interval, time_slot_intervals
-
-    it("returns [10,10] when each time slot can fit 5 appointments with capacity = 2", () => { 
-
-        breaks = [new Interval(25,30), new Interval(45,50)]
-
-        assert.deepStrictEqual(
-            getTotalAvailability(breaks, time_slot_intervals, open_close_interval, 
-                                 service_duration, capacity), 
-            [10,10],  "");
-    });
-    
-    it("returns [2,0] when ts 1/2 can fit 1/0 apts respectively, capacity = 2", () => { 
-
-        breaks = [new Interval(20,30), new Interval(40,50)]
-        service_duration = 20
-
-        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
-
-        assert.deepStrictEqual(ta, [2,0], "");       
-    });
-
-    it("returns [0,0] when ts 1/2 can't fit any appointments", () => { 
-
-        breaks = [new Interval(20,30), new Interval(40,50)]
-        service_duration = 21
-
-        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
-
-        assert.deepStrictEqual(ta, [0,0], "");       
-    });
-
-    it("returns [2,4] when ts can fit 1/2 apts respectively, capacity = 2", () => { 
-
-        breaks = [new Interval(0,15)]
-        service_duration = 15
-
-        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
-
-        assert.deepStrictEqual(ta, [2,4], "");       
-    });
-
-    beforeEach(() => {
-        breaks = []
-        service_duration = 5
-        capacity = 2
-        open_close_interval = new Interval(0,60)
-
-        time_slot_intervals = [
-            new Interval(0, 30), 
-            new Interval(30, 60)]
-    });
-
-});
-
+/*
 describe("testing getAdjustedAvailability() edge cases", () => {
 
     let appointments, service_duration, capacity, time_slot_intervals, start_end_interval, breaks
@@ -643,7 +752,7 @@ describe("testing getAdjustedAvailability() main paths", () => {
 
         console.log(aa)
     });
-    */
+    
 
     it("testing main path with 4 appointments, 2 breaks and sd: 15,10,5", () => { 
 
@@ -684,7 +793,6 @@ describe("testing getAdjustedAvailability() main paths", () => {
         assert.deepStrictEqual(aa, [[0,5,25], [35,40,45,50,55] ], "");    
     });
 
-
     beforeEach(() => {
 
         time_slot_intervals = [new Interval(0, 30), new Interval(30, 60)]
@@ -703,191 +811,371 @@ describe("testing getAdjustedAvailability() main paths", () => {
     });
 
 });
+*/
 
+describe("testing areTimeSlotsValid()", {skip: false},() => {
 
-describe("testing AvailabilityService constructor", {skip: false},() => {
+    let time_slots, min_max_interval, areTimeSlotsValid
 
-    let  breaks, appointments, time_slots, start_time, end_time, service_duration,service_capacity
+     it("returns true on valid time slots", () => {
+       
+        time_slots = [new Interval(0, 20), new Interval(20, 40),new Interval(40, 60)]
+        min_max_interval = new Interval(0,60)
+               
+        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), true, "should be valid time slots")
 
-    describe("testing correct inputs",() => {
+        time_slots = [new Interval(0, 60)]
+        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), true, "should be valid time slots")
 
-        it("creates an instance of the class without throwing an exception", () => {
+     });
 
-        let obj
-        let _err
+     it("returns false when end time on last time slot is not equal to min_max_interval end", () => {
+       
+        time_slots = [new Interval(0, 20), new Interval(20, 40),new Interval(40, 59)]
+        min_max_interval = new Interval(0,60)
+     
+        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), false, "should be valid time slots")
+     });
 
-        try{
-            obj = 
-            new AvailabilityService(
-                breaks, 
-                appointments,
-                time_slots,
-                start_time,
-                end_time,
-                service_duration,
-                service_capacity) 
-        }catch(err){_err = err}
+     it("returns false when start time on first time slot is not equal to min_max_interval start", () => {
+       
+        time_slots = [new Interval(0, 20), new Interval(20, 40),new Interval(40, 60)]
+        min_max_interval = new Interval(1,60)
+     
+        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), false, "should be valid time slots")
 
-        assert.equal(obj instanceof AvailabilityService, true, `instance creation failed. err: ${_err}`) 
+     });
 
-        });
+     it("returns false when timeslot.end != timeslot.start", () => {
+       
+        time_slots = [new Interval(0, 19), new Interval(20, 40),new Interval(40, 60)]
+        min_max_interval = new Interval(0,60)
+     
+        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), false, "should be invalid time slots")
 
-        beforeEach(() => {
-            breaks = [{start: "01:00", end: "01:15"}]
+        time_slots = [new Interval(0, 36), new Interval(35, 60)]
+        assert.equal( areTimeSlotsValid(time_slots, min_max_interval), false, "should be invalid time slots")
 
-            appointments = [{start: "00:00", end: "00:15"},{start: 5, end: 15}]
+     });
 
-            time_slots = [
-                {start: "00:00", end: "01:00"}, 
-                {start: "01:00", end: "02:00"},
-            ] 
-
-            start_time = "00:00"
-            end_time = "02:00" 
-
-            service_duration = 15
-            service_capacity = 2
-        });
- 
-    });
-
-    describe("testing correct inputs",() => {
-
-        it("creates an instance of the class without throwing an exception", () => {
-
-        let obj
-        let _err
-
-        try{
-            obj = 
-            new AvailabilityService(
-                breaks, 
-                appointments,
-                time_slots,
-                start_time,
-                end_time,
-                service_duration,
-                service_capacity) 
-        }catch(err){_err = err}
-
-        assert.equal(obj instanceof AvailabilityService, true, `instance creation failed. err: ${_err}`) 
-
-        });
-
-        beforeEach(() => {
-            breaks = [{start: "01:00", end: "01:15"}]
-
-            appointments = [{start: "00:00", end: "00:15"},{start: 5, end: 15}]
-
-            time_slots = [
-                {start: "00:00", end: "01:00"}, 
-                {start: "01:00", end: "02:00"},
-            ] 
-
-            start_time = "00:00"
-            end_time = "02:00" 
-
-            service_duration = 15
-            service_capacity = 2
-        });
- 
-    });
-
-    /*
     beforeEach(() => {
+        areTimeSlotsValid = AvailabilityService.areTimeSlotsValid
         time_slots = null
         min_max_interval = null
-    });*/
+    });
+
+});
+
+describe("testing getAvailability() main paths ", () => {
+
+    let breaks, appointments, time_slots, start_time, end_time, service_duration, service_capacity;
+
+    
+    it("aaaaaaa", () => {
+        
+        appointments = [
+          {start: "00:05", end: "00:10"},
+          {start: "00:15", end: "00:20"},
+          {start: "00:40", end: "00:45"},
+          {start: "01:20", end: "01:25"},
+        ]
+
+        const availability = 
+            new AvailabilityService(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                service_duration,
+                service_capacity).getAvailability()
+
+     });
+
+    /*
+     it("returns 100% capacity for each time slot when there are no appointments d=15,30", () => {
+       
+        requested_service_duration = 15
+
+        assert.deepStrictEqual(
+            getAvailability(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                requested_service_duration
+            ), 
+            [
+                {start: 0, end: 60, open_times: [0,15,30,45], availability: 100}, 
+                {start: 60, end: 120,  open_times: [75,90,105], availability: 100}
+            ], 
+            ""); 
+
+        requested_service_duration = 30
+          
+        assert.deepStrictEqual(
+            getAvailability(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                requested_service_duration
+            ), 
+            [
+                {start: 0, end: 60, open_times: [0,30], availability: 100}, 
+                {start: 60, end: 120, open_times: [75], availability: 100}
+            ], 
+            ""); 
+            
+     });
+
+     it("returns correct slots for a=(15,30)(75,100) across sd=15,25,45", () => {
+       
+        appointments = [
+          {start: "00:15", end: "00:30"},
+          {start: "01:15", end: "01:40"},
+        ]
+
+        requested_service_duration = 15
+
+        assert.deepStrictEqual(
+            getAvailability(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                requested_service_duration
+            ), 
+            [
+                {start: 0, end: 60,open_times: [0,30,45], availability: 75}, 
+                {start: 60, end: 120, open_times: [100], availability: 33}
+            ], 
+            ""); 
+
+        requested_service_duration = 25
+
+        assert.deepStrictEqual(
+            getAvailability(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                requested_service_duration
+            ), 
+            [
+                {start: 0, end: 60, open_times: [30], availability: 50}, 
+                {start: 60, end: 120, open_times: [], availability: 0}
+            ], 
+            ""); 
+
+            requested_service_duration = 45
+
+            assert.deepStrictEqual(
+                getAvailability(
+                    breaks, 
+                    appointments,
+                    time_slots,
+                    start_time,
+                    end_time,
+                    requested_service_duration
+                ), 
+                [
+                    {start: 0, end: 60,open_times: [], availability: 0}, 
+                    {start: 60, end: 120, open_times: [], availability: 0}
+                ], 
+                ""); 
+            
+    
+     });
+
+     it("returns correct slots for overlapping appointments a=(5,15)(5,25)(30,40)(100,120) across sd=10,20,30", () => {
+       
+        appointments = [
+          {start: "00:05", end: "00:15"},
+          {start: "00:05", end: "00:25"},
+          {start: "00:30", end: "00:40"},
+          {start: "01:40", end: "02:00"},
+        ]
+
+        requested_service_duration = 10
+
+        assert.deepStrictEqual(
+            getAvailability(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                requested_service_duration
+            ), 
+            [
+                {start: 0, end: 60, open_times: [40,50], availability: 33}, 
+                {start: 60, end: 120, open_times: [75,85], availability: 50}
+            ], 
+            "");
+            
+        requested_service_duration = 20
+
+        assert.deepStrictEqual(
+            getAvailability(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                requested_service_duration
+            ), 
+            [
+                {start: 0, end: 60, open_times: [40], availability: 33}, 
+                {start: 60, end: 120, open_times: [75], availability: 50}
+            ], 
+            ""); 
+
+        requested_service_duration = 30
+
+        assert.deepStrictEqual(
+            getAvailability(
+                breaks, 
+                appointments,
+                time_slots,
+                start_time,
+                end_time,
+                requested_service_duration
+            ), 
+            [
+                {start: 0, end: 60, open_times: [], availability: 0}, 
+                {start: 60, end: 120, open_times: [], availability: 0}
+            ], 
+            ""); 
+
+     });
+     */
+
+
+    beforeEach(() => {
+
+        appointments = []
+        breaks = [{start: "01:00", end: "01:15"}]
+        time_slots = [
+            {start: "00:00", end: "01:00"}, 
+            {start: "01:00", end: "02:00"},
+        ]
+        start_time = "00:00"
+        end_time = "02:00"     
+        service_duration = 5  
+        service_capacity = 2     
+    });
+
+});
+
+describe("testing getTotalAvailability()", () => {
+
+    let breaks, service_duration, capacity, open_close_interval, time_slot_intervals
+
+    it("returns [5,5] when each time slot can fit 5 appointments with capacity = 2", () => { 
+
+        breaks = [new Interval(25,30), new Interval(45,50)]
+
+        assert.deepStrictEqual(
+            getTotalAvailability(breaks, time_slot_intervals, open_close_interval, 
+                                 service_duration, capacity), 
+            [5,5],  "");
+    });
+    /*
+    it("returns [2,0] when ts 1/2 can fit 1/0 apts respectively, capacity = 2", () => { 
+
+        breaks = [new Interval(20,30), new Interval(40,50)]
+        service_duration = 20
+
+        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
+
+        assert.deepStrictEqual(ta, [2,0], "");       
+    });
+
+    it("returns [0,0] when ts 1/2 can't fit any appointments", () => { 
+
+        breaks = [new Interval(20,30), new Interval(40,50)]
+        service_duration = 21
+
+        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
+
+        assert.deepStrictEqual(ta, [0,0], "");       
+    });
+
+    it("returns [2,4] when ts can fit 1/2 apts respectively, capacity = 2", () => { 
+
+        breaks = [new Interval(0,15)]
+        service_duration = 15
+
+        let ta = getTotalAvailability(breaks, time_slot_intervals, open_close_interval, service_duration, capacity)
+
+        assert.deepStrictEqual(ta, [2,4], "");       
+    });
+*/
+    beforeEach(() => {
+        
+        breaks = []
+        service_duration = 5
+        capacity = 2
+        open_close_interval = new Interval(0,60)
+
+        time_slot_intervals = [
+            new Interval(0, 30), 
+            new Interval(30, 60)]
+    });
 
 });
 
 
 /*
-describe("testing getAvailability() assertions, edge cases", () => {
+describe("testing getTotalAvailability_test()", () => {
 
-    let breaks, appointments, time_slots, start_time, end_time, requested_service_duration;
+    let breaks_with_si, service_duration, capacity, open_close_interval, time_slot_intervals
 
-    it(" throws assertion error on improper start/end times ", () => {
-       
-        let output
+    it("aaaaaa", () => { 
 
-        start_time = "12:89"
-        
-        try{output = getAvailability(breaks, appointments,time_slots,start_time,end_time,requested_service_duration) }catch(err){}
-        assert.equal(output === undefined, true, "start_time is improper") 
-        
-        end_time = "24:03"
-        
-        try{output = getAvailability(breaks, appointments,time_slots,start_time,end_time,requested_service_duration) }catch(err){}
-        assert.equal(output === undefined, true, "end_time is improper")  
-  
-    });
-
-    it(" throws assertion error on improper breaks ", () => {
-       
-        let output
-
-        breaks = [{start: "0a:00", end: "09:15"}]
-        
-        try{output = getAvailability(breaks, appointments,time_slots,start_time,end_time,requested_service_duration) }catch(err){}
-        assert.equal(output === undefined, true, "breaks arr is improper") 
-    });
-
-    it(" throws assertion error on improper timeslots ", () => {
-    
-        let output
-
-        time_slots = [{start: "08:00", end: "09:00"}, {start: "09:a", end: "10:00"},{start: "10:00", end: "11:00"}, {start: "11:00", end: "12:00"}]
-
-        try{output = getAvailability(breaks, appointments,time_slots,start_time,end_time,requested_service_duration) }catch(err){}
-        assert.equal(output === undefined, true, "time_slots is improper") 
-
-        time_slots = [{start: "08:00", end: "09:00"}, {start: "09:00", end: "10:01"},{start: "10:00", end: "11:00"}, {start: "11:00", end: "12:00"}]
-
-        try{output = getAvailability(breaks, appointments,time_slots,start_time,end_time,requested_service_duration) }catch(err){}
-        assert.equal(output === undefined, true, "time_slots is improper")
-    });
-
-    it(" throws assertion error on improper appointments ", () => {
-    
-        let output
-        appointments = [{start: 0, end: -60}]
-
-    try{output = getAvailability(breaks, appointments,time_slots,start_time,end_time,requested_service_duration) }catch(err){}
-    assert.equal(output === undefined, true, "appointments is improper")
-    });
-
-    it(" throws assertion error when service duration < 0 or > than time slot length ", () => {
-    
-        let output
-
-        requested_service_duration = -1
-
-        try{output = getAvailability(breaks, appointments,time_slots,start_time,end_time,requested_service_duration) }catch(err){}
-        assert.equal(output === undefined, true, "requested_service_duration is negative") 
-
-        requested_service_duration = 61
-
-       // try{output = getAvailability(breaks, appointments,time_slots,start_time,end_time,requested_service_duration) }catch(err){}
-       // assert.equal(output === undefined, true, "requested_service_duration is > then time slot duration") 
-    });
-
-    beforeEach(() => {
-
-        breaks = [{start: "09:00", end: "09:15"}, {start: "11:00", end: "11:15"}]
-        start_time = "08:00"
-        end_time = "12:00"
-        time_slots = [
-            {start: "08:00", end: "09:00"}, 
-            {start: "09:00", end: "10:00"},
-            {start: "10:00", end: "11:00"}, 
-            {start: "11:00", end: "12:00"}
+        breaks_with_si = [
+            {interval: new Interval(5,15), service_impact: 1}, 
+            {interval: new Interval(15,30), service_impact: 1},
+            {interval: new Interval(25,40), service_impact: 2},// a single interval with service_impact = 2//
         ]
-        appointments = [], 
-        requested_service_duration = null     
+
+        getTotalAvailability_test(
+            breaks_with_si,
+            time_slot_intervals,
+            open_close_interval,
+            service_duration,
+            capacity,
+        )
+
+
+
+
+
+       
+    });
+  
+    beforeEach(() => {
+        
+        breaks_with_si = []
+        service_duration = 15
+        capacity = 3
+        open_close_interval = new Interval(0,60)
+
+        time_slot_intervals = [
+            new Interval(0, 30), 
+            new Interval(30, 60)]
     });
 
 });
+*/
+
+
+/*
 
 describe("testing getAvailability() main paths ts=(0,60)(60,120) b=(60,75)", () => {
 
@@ -1184,3 +1472,52 @@ describe("testing fillDisjointedGaps", () => {
 
 });
 */
+
+
+
+describe("testing getAdjustedAvailability new version w/ breaks()", () => {
+
+    let appointments, service_duration, capacity, time_slot_intervals, start_end_interval, breaks
+
+    it(" testing no breaks and no appointments", () => { 
+
+       
+        breaks_with_si = [
+            {interval: new Interval(50,60), service_impact: 2}, 
+            {interval: new Interval(15,20), service_impact: 1},
+        ]
+        
+
+        //appointments = []
+
+        service_duration = 15
+
+        let aa = getAdjustedAvailability_test(
+                    appointments, 
+                    breaks_with_si, 
+                    time_slot_intervals, 
+                    start_end_interval, 
+                    service_duration, 
+                    capacity)
+
+       // assert.deepStrictEqual(aa, [[0,15],[30,45]], "");  
+    });
+
+    beforeEach(() => {
+
+        time_slot_intervals = [new Interval(0, 30), new Interval(30, 60)]
+
+        breaks = [new Interval(15,20), new Interval(30,35)]
+
+        appointments = [ 
+            new Interval(40,55), 
+            new Interval(0,15), 
+            new Interval(10,25),
+            new Interval(20,35)]
+
+        start_end_interval = new Interval(0, 60)
+        service_duration = 15
+        capacity = 3
+    });
+
+});
